@@ -23,7 +23,7 @@ A first ruleset for the Quickstart
   rule hello_monkey {
     select when echo monkey
     pre {
-      name = event:attr("name") || "Monkey";
+      name = event:attr{"name"} != null => event:attr{"name"} | "Monkey";
     }
     send_directive("Hello " + name)
   }
