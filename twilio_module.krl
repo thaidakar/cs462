@@ -16,7 +16,7 @@ My sad attempt at the twilio lab
       base_url = "https://api.twilio.com/2010-04-01/Accounts/";
 
       sendMessage = defaction(to, body) {
-        authjson = {"AccountSid":accountSid, "AuthToken":authToken}
+        authjson = {"username":accountSid, "password":authToken}
         bodyjson = {"body": body, "from":"+18323491263", "to":to}
         http:post(<<#{base_url}#{accountSid}/Messages.json>>, auth=authjson, qs=bodyjson) setting(response)
         return response
