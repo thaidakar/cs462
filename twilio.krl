@@ -1,4 +1,4 @@
-ruleset twillo {
+ruleset twilio {
     meta {
       shares lastResponse
       use module org.thaidakar.twilio alias twilio_api
