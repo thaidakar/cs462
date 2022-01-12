@@ -33,8 +33,9 @@ ruleset twilio {
             pageSize = event:attrs{"pageSize"} || "50";
             toNum = event:attrs{"toNum"} || "";
             fromNum = event:attrs{"fromNum"} || "";
+            page = event:attrs{"page"} || "0";
         }
-        twilio_api:getMessages(toNum, fromNum, pageSize) setting(response)
+        twilio_api:getMessages(toNum, fromNum, pageSize, page) setting(response)
         fired {
             ent:lastResponse := response{"content"}.decode()
             ent:lastTimestanp := time:now()
