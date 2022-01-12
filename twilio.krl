@@ -14,12 +14,13 @@ ruleset twilio {
     }
 
     rule send_message {
-        select when twilio send
+        select when twilio send_message
         pre {
-            body = event:attrs{"body"} || "";
-            to = event:attrs{"to"} || "+18323491263"
+            body = event:attrs{"message"} || "";
+            toNum = event:attrs{"toNum"} || "+18323491263";
+            fromNum = event:attrs{"fromNum"} || "+19402837542";
         }
-        twilio_api:sendMessage(to, body) setting(response)
+        twilio_api:sendMessage(toNum, fromNum, body) setting(response)
         fired {
             ent:lastResponse := response
             ent:lastTimestanp := time:now()
@@ -27,10 +28,15 @@ ruleset twilio {
     }
 
     rule get_messages {
-        select when twilio get
-        twilio_api:getMessages() setting(response)
+        select when twilio messages
+        pre {
+            pageSize = event:attrs{"pageSize"} || "50";
+            toNum = event:attrs{"toNum"} || "";
+            fromNum = event:attrs{"fromNum"} || "";
+        }
+        twilio_api:getMessages(toNum, fromNum, pageSize) setting(response)
         fired {
-            ent:lastResponse := response
+            ent:lastResponse := response{"content"}.decode()
             ent:lastTimestanp := time:now()
         }
     }
