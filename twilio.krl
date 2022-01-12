@@ -33,8 +33,8 @@ ruleset twilio {
             pageSize = event:attrs{"pageSize"} || "50";
             toNum = event:attrs{"toNum"} || "";
             fromNum = event:attrs{"fromNum"} || "";
+            response = twilio_api:getMessages(fromNum, toNum, pageSize);
         }
-        twilio_api:getMessages(toNum, fromNum, pageSize) setting(response)
         fired {
             ent:lastResponse := response
             ent:lastTimestanp := time:now()
@@ -44,9 +44,9 @@ ruleset twilio {
     rule page_message {
         select when twilio page_message
         pre {
-            uri = event:attrs{"uri"} || ""
+            uri = event:attrs{"uri"} || "";
+            response = twilio_api:pageMessage(uri);
         }
-        twilio_api:pageMessage(uri) setting (response)
         fired {
             ent:lastResponse := response
             ent:lastTimestanp := time:now()

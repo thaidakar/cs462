@@ -24,11 +24,11 @@ My sad attempt at the twilio lab
       getMessages = function(toNum, fromNum, pageSize) {
         bodyjson = {"To":toNum, "From":fromNum, "PageSize":pageSize}
         response = http:get(<<#{base_url}#{accountSid}/Messages.json>>, auth=authjson, qs=bodyjson)
-        response{"content"}.decode()
+        return response{"content"}.decode()
       }
       pageMessage = function(uri) {
         response = http:get(<<https://api.twilio.com#{uri}>>, auth=authjson)
-        response{"content"}.decode()
+        return response{"content"}.decode()
       }
     }
   }
