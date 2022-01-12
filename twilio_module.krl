@@ -17,8 +17,8 @@ My sad attempt at the twilio lab
 
       sendMessage = defaction(to, body) {
         authjson = {"username":accountSid, "password":authToken}
-        bodyjson = {"Body": body, "From":"+18323491263", "To":to}
-        http:post(<<#{base_url}#{accountSid}/Messages.json>>, auth=authjson, qs=bodyjson) setting(response)
+        bodyjson = {"Body": body, "From":"+19402837542", "To":to}
+        http:post(<<#{base_url}#{accountSid}/Messages.json>>, auth=authjson, form=bodyjson) setting(response)
         return response
       }
       getMessages = defaction() {
