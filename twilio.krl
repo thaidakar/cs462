@@ -36,7 +36,7 @@ ruleset twilio {
         }
         twilio_api:getMessages(toNum, fromNum, pageSize) setting(response)
         fired {
-            ent:lastResponse := response{"content"}.decode()
+            ent:lastResponse := response
             ent:lastTimestanp := time:now()
         }
     }

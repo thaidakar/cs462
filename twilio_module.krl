@@ -21,14 +21,14 @@ My sad attempt at the twilio lab
         http:post(<<#{base_url}#{accountSid}/Messages.json>>, auth=authjson, form=bodyjson) setting(response)
         return response
       }
-      getMessages = defaction(toNum, fromNum, pageSize) {
+      getMessages = function(toNum, fromNum, pageSize) {
         bodyjson = {"To":toNum, "From":fromNum, "PageSize":pageSize}
-        http:get(<<#{base_url}#{accountSid}/Messages.json>>, auth=authjson, qs=bodyjson) setting(response)
-        return response 
+        response = http:get(<<#{base_url}#{accountSid}/Messages.json>>, auth=authjson, qs=bodyjson)
+        response{"content"}.decode()
       }
-      pageMessage = defaction(uri) {
-        http:get(<<https://api.twilio.com#{uri}>>, auth=authjson) setting(response)
-        return response
+      pageMessage = function(uri) {
+        response = http:get(<<https://api.twilio.com#{uri}>>, auth=authjson)
+        response{"content"}.decode()
       }
     }
   }
