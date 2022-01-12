@@ -48,7 +48,7 @@ ruleset twilio {
         }
         twilio_api:pageMessage(uri) setting (response)
         fired {
-            ent:lastResponse := response{"content"}.decode()
+            ent:lastResponse := response
             ent:lastTimestanp := time:now()
         }
     }
