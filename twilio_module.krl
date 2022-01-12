@@ -18,11 +18,11 @@ My sad attempt at the twilio lab
       sendMessage = function(body) {
         authjson = {"AccountSid":accountSid, "AuthToken":authToken}
         bodyjson = {"body": body}
-        http:post(<<#{base_url}#{accountSid}/Messages.json>>, auth=authjson, qs=bodyjson){"content"}.decode()
+        return http:post(<<#{base_url}#{accountSid}/Messages.json>>, auth=authjson, qs=bodyjson){"content"}.decode()
       }
       getMessages = function() {
         authjson = {"username":accountSid, "password":authToken}
-        http:get(<<#{base_url}#{accountSid}/Messages.json>>, auth=authjson){"content"}.decode()
+        return http:get(<<#{base_url}#{accountSid}/Messages.json>>, auth=authjson){"content"}.decode()
       }
     }
   }
