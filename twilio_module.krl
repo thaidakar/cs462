@@ -15,14 +15,16 @@ My sad attempt at the twilio lab
     global {
       base_url = "https://api.twilio.com/2010-04-01/Accounts/";
 
-      sendMessage = function(body) {
+      sendMessage = defaction(to, body) {
         authjson = {"AccountSid":accountSid, "AuthToken":authToken}
-        bodyjson = {"body": body}
-        return http:post(<<#{base_url}#{accountSid}/Messages.json>>, auth=authjson, qs=bodyjson){"content"}.decode()
+        bodyjson = {"body": body, "from":"+18323491263", "to":to}
+        http:post(<<#{base_url}#{accountSid}/Messages.json>>, auth=authjson, qs=bodyjson) setting(response)
+        return response
       }
-      getMessages = function() {
+      getMessages = defaction() {
         authjson = {"username":accountSid, "password":authToken}
-        return http:get(<<#{base_url}#{accountSid}/Messages.json>>, auth=authjson){"content"}.decode()
+        http:get(<<#{base_url}#{accountSid}/Messages.json>>, auth=authjson)  setting(response)
+        return response
       }
     }
   }
