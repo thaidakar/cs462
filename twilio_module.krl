@@ -1,4 +1,4 @@
-ruleset org.thaidakar.twilo {
+ruleset org.thaidakar.twilio {
     meta {
       name "Modules and External APIs Lesson"
       description <<
