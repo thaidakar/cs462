@@ -9,8 +9,8 @@ ruleset twilio {
 
     global {
         lastResponse = function() {
-        {}.put(ent:lastTimestamp,ent:lastResponse)
-      }
+            {}.put(ent:lastTimestamp,ent:lastResponse)
+        }
     }
 
     rule send_message {
@@ -33,9 +33,20 @@ ruleset twilio {
             pageSize = event:attrs{"pageSize"} || "50";
             toNum = event:attrs{"toNum"} || "";
             fromNum = event:attrs{"fromNum"} || "";
-            page = event:attrs{"page"} || "0";
         }
-        twilio_api:getMessages(toNum, fromNum, pageSize, page) setting(response)
+        twilio_api:getMessages(toNum, fromNum, pageSize) setting(response)
+        fired {
+            ent:lastResponse := response{"content"}.decode()
+            ent:lastTimestanp := time:now()
+        }
+    }
+
+    rule page_message {
+        select when twilio page_message
+        pre {
+            uri = event:attrs{"uri"} || ""
+        }
+        twilio_api:next_message(uri) setting (response)
         fired {
             ent:lastResponse := response{"content"}.decode()
             ent:lastTimestanp := time:now()
