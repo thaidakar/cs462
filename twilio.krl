@@ -33,7 +33,7 @@ ruleset twilio {
             pageSize = event:attrs{"pageSize"} || "50";
             toNum = event:attrs{"toNum"} || "";
             fromNum = event:attrs{"fromNum"} || "";
-            response = twilio_api:getMessages(fromNum, toNum, pageSize);
+            response = twilio_api:getMessages(toNum, fromNum, pageSize);
         }
         fired {
             ent:lastResponse := response
