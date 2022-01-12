@@ -46,7 +46,7 @@ ruleset twilio {
         pre {
             uri = event:attrs{"uri"} || ""
         }
-        twilio_api:next_message(uri) setting (response)
+        twilio_api:pageMessage(uri) setting (response)
         fired {
             ent:lastResponse := response{"content"}.decode()
             ent:lastTimestanp := time:now()
