@@ -24,7 +24,7 @@ My sad attempt at the twilio lab
       getMessages = defaction(toNum, fromNum, pageSize) {
         authjson = {"username":accountSid, "password":authToken}
         bodyjson = {"To":toNum, "From":fromNum, "PageSize":pageSize}
-        http:get(<<#{base_url}#{accountSid}/Messages.json>>, auth=authjson, form=bodyjson)  setting(response)
+        http:get(<<#{base_url}#{accountSid}/Messages.json>>, auth=authjson, qs=bodyjson)  setting(response)
         return response 
       }
     }
