@@ -3,7 +3,7 @@ ruleset wovyn_base {
 
     }
     global {
-        content = ""
+        temperature_threshold = 100
     }
   
     rule process_heartbeat {
@@ -21,5 +21,13 @@ ruleset wovyn_base {
             "timestamp" : time:now()
           }
       }
+    }
+
+    rule find_high_temps {
+        select when wovyn new_temperature_reading
+        pre {
+            temperature = event:attrs{"temperature"}
+        }
+        send_directive(temperature)
     }
   }
