@@ -26,10 +26,10 @@ ruleset wovyn_base {
         pre {
             content = event:attrs.klog("attrs")
             temperature = event:attrs{"temperature"}
-            degrees = temperature{"temperatureF"}.decode()
+            degrees = temperature{"temperatureF"}
             voilation = degrees > temperature_threshold
         }
-        send_directive(degrees + " is the temperature")
+        send_directive(degrees + " is the temperature, " + temperature + " is the object")
         fired {
             raise wovyn event "threshold_violation" attributes {
                 "degrees":degrees,
