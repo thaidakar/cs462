@@ -26,10 +26,11 @@ ruleset wovyn_base {
         pre {
             content = event:attrs.klog("attrs")
             temperature = event:attrs{"temperature"}
+            timestamp = event:attrs{"timestamp"}
             degrees = temperature[0]{"temperatureF"}.decode()
             voilation = degrees > temperature_threshold
         }
-        send_directive(degrees + " is the temperature, " + temperature + " is the object")
+        send_directive(degrees + " / " + temperature_threshold + " at " + timestamp)
         fired {
             raise wovyn event "threshold_violation" attributes {
                 "degrees":degrees,
@@ -44,7 +45,6 @@ ruleset wovyn_base {
             degrees = event:attrs{"degrees"}
             message = "Temperature: " + degrees + " is too hot! (over " + temperature_threshold + ")" 
         }
-        send_directive(message)
         fired {
             raise twilio event "send_message" attributes {
                 "message":message,
