@@ -26,7 +26,7 @@ ruleset wovyn_base {
         pre {
             content = event:attrs.klog("attrs")
             temperature = event:attrs{"temperature"}
-            degrees = temperature{"temperatureF"}
+            degrees = temperature["temperatureF"]
             voilation = degrees > temperature_threshold
         }
         send_directive(degrees + " is the temperature, " + temperature + " is the object")
