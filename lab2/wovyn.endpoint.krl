@@ -6,7 +6,7 @@ ruleset wovyn_base {
     }
   
     rule process_heartbeat {
-      select when wovyn heartbeat where event:attrs{"genericThing"}
+      select when wovyn heartbeat
       pre {
         content = event:attrs.klog("attrs")
         genericThing = event:attrs{"genericThing"}
@@ -17,7 +17,7 @@ ruleset wovyn_base {
           raise wovyn event "new_temperature_reading" attributes {
             "temperature" : temperature,
             "timestamp" : time:now()
-          }
+          } if genericThing != null
       }
     }
 
