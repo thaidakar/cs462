@@ -2,7 +2,7 @@ ruleset wovyn_base {
     meta {
     }
     global {
-        temperature_threshold = 70
+        temperature_threshold = 75
     }
   
     rule process_heartbeat {
