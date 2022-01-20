@@ -9,7 +9,7 @@ ruleset post_test {
     }
   
     rule post_test {
-      select when post test
+      select when wovyn heartbeat
       pre {
         never_used = event:attrs.klog("attrs")
       }
