@@ -30,6 +30,7 @@ ruleset wovyn_base {
             degrees = event:attrs{"temperatureF"}.decode()
             voilation = degrees > temperature_threshold
         }
+        send_directive(degrees + " is the temperature")
         fired {
             raise wovyn event "threshold_violation" attributes {
                 "degrees":degrees,
