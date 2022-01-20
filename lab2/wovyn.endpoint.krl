@@ -44,6 +44,7 @@ ruleset wovyn_base {
             degrees = event:attrs{"degrees"}
             message = "Temperature: " + degrees + " is too hot! (over " + temperature_threshold + ")" 
         }
+        send_directive(message)
         fired {
             raise twilio event "send_message" attributes {
                 "message":message,
