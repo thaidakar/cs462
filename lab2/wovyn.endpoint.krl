@@ -14,7 +14,6 @@ ruleset wovyn_base {
         data = genericThing{"data"}.decode()
         temperature = data{"temperature"}.decode()
       }
-      send_directive(content)
       fired {
           raise wovyn event "new_temperature_reading" attributes {
             "temperature" : temperature,
@@ -26,6 +25,7 @@ ruleset wovyn_base {
     rule find_high_temps {
         select when wovyn new_temperature_reading
         pre {
+            content = event:attrs.klog("attrs")
             temperature = event:attrs{"temperature"}
         }
         send_directive(temperature)
