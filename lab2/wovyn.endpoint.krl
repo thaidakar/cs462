@@ -3,7 +3,8 @@ ruleset wovyn_base {
 
     }
     global {
-        temperature_threshold = 100
+        temperature_threshold = 75
+        x = false
     }
   
     rule process_heartbeat {
@@ -27,7 +28,14 @@ ruleset wovyn_base {
         pre {
             content = event:attrs.klog("attrs")
             temperature = event:attrs{"temperature"}
+            degrees = event:attrs{"temperatureF"}.decode()
+            voilation = degrees > temperature_threshold
         }
-        send_directive(temperature)
+        fired {
+            raise wovyn event "threshold_violation" attributes {
+                "degrees":degrees,
+                "threshold":temperature_threshold
+            } if voilation
+        }
     }
   }
