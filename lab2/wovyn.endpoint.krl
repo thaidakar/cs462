@@ -30,7 +30,7 @@ ruleset wovyn_base {
             degrees = temperature[0]{"temperatureF"}.decode()
             voilation = degrees > temperature_threshold
         }
-        send_directive(degrees + " / " + temperature_threshold + " at " + timestamp)
+        send_directive(degrees + " / " + temperature_threshold + " recorded at " + timestamp)
         fired {
             raise wovyn event "threshold_violation" attributes {
                 "degrees":degrees,
