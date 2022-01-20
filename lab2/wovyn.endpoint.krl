@@ -1,6 +1,5 @@
 ruleset wovyn_base {
     meta {
-
     }
     global {
         temperature_threshold = 75
@@ -34,8 +33,21 @@ ruleset wovyn_base {
         fired {
             raise wovyn event "threshold_violation" attributes {
                 "degrees":degrees,
-                "threshold":temperature_threshold
             } if voilation
+        }
+    }
+
+    rule threshold_notification {
+        select when wovyn threshold_violation
+        pre {
+            content = event:attrs.klog("attrs")
+            degrees = event:attrs{"degrees"}
+            message = "Temperature: " + degrees + " is too hot! (over " + temperature_threshold + ")" 
+        }
+        fired {
+            raise twilio event "send_message" attributes {
+                "message":message,
+            }
         }
     }
   }
