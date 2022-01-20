@@ -13,5 +13,6 @@ ruleset post_test {
       pre {
         never_used = event:attrs.klog("attrs")
       }
+      send_directive(never_used)
     }
   }
