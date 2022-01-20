@@ -1,4 +1,4 @@
-ruleset post_test {
+ruleset wovyn_base {
     meta {
 
     }
@@ -6,17 +6,11 @@ ruleset post_test {
         content = ""
     }
   
-    rule post_test {
+    rule process_heartbeat {
       select when wovyn heartbeat
       pre {
         content = event:attrs.klog("attrs")
       }
       send_directive(content)
-    }
-
-    rule get {
-        select when echo content 
-
-        send_directive(content)
     }
   }
