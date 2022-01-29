@@ -5,7 +5,7 @@ ruleset temperature_store {
     }
 
     global {
-        clear_temps = { "temperature": 0, "timestamp": 0 }
+        clear_temps = { "0": 0 }
 
         temperatures = function() {
             ent:temperatures
@@ -20,7 +20,7 @@ ruleset temperature_store {
         }
 
         checkViolation = function(temp) {
-            temp < 75
+            temp < 75 && temp > 0
         }
     }
 
@@ -40,7 +40,6 @@ ruleset temperature_store {
         }
         send_directive("Storing " + passed_temp + " @ " + passed_timestamp)
         always {
-            // ent:temperatures := ent:temperatures.defaultsTo(clear_temps, "initialization was needed")
             ent:temperatures{passed_timestamp} := passed_temp
         }
     }
@@ -53,7 +52,6 @@ ruleset temperature_store {
         }
         send_directive("Storing violation " + passed_temp + " @ " + passed_timestamp)
         always {
-            // ent:violations := ent:violations.defaultsTo(clear_temps, "initialization was needed")
             ent:violations{passed_timestamp} := passed_temp
         }
     }
