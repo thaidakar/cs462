@@ -43,20 +43,6 @@ ruleset wovyn_base {
         }
     }
 
-    rule temperature_store {
-        select when wovyn new_temperature_reading
-        pre {
-            degrees = event:attrs{"temperatureF"}
-            timestamp = event:attrs{"timestamp"}
-        }
-        always {
-            raise echo event "store_temperature" attributes {
-                "temperature": degrees,
-                "timestamp": timestamp
-            }
-        }
-    }
-
     rule threshold_notification {
         select when wovyn threshold_violation
         pre {
