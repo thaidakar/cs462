@@ -1,8 +1,34 @@
 ruleset wovyn_base {
     meta {
+        shares temperatures
     }
     global {
         temperature_threshold = 75
+
+        clear_temps = { "temperature": 0, "timestamp": 0 }
+
+        temperatures = function() {
+            ent:temperatures
+        }
+    }
+
+    rule clear_temps {
+        select when echo clear
+        always {
+            ent:temperatures := clear_temps
+        }
+    }
+
+    rule store_temperature {
+        select when echo store_temperature
+        pre {
+            passed_temp = event:attrs{"temperature"}.klog("passed in temperature: ")
+            passed_timestamp = event:attrs{"timestamp"}.klog("passed in timestamp: ")
+        }
+        always {
+            ent:temperatures := ent:temperatures.defaultsTo(clear_temps, "initialization was needed")
+            ent:temperatures{passed_timestamp} := passed_temp
+        }
     }
   
     rule process_heartbeat {
@@ -35,6 +61,21 @@ ruleset wovyn_base {
             raise wovyn event "threshold_violation" attributes {
                 "degrees":degrees,
             } if voilation
+        }
+    }
+
+    rule temperature_store {
+        select when wovyn new_temperature_reading
+        pre {
+            degrees = event:attrs{"temperatureF"}
+            timestamp = event:attrs{"timestamp"}
+        }
+        send_directive("Storing " + degrees + " @ " + timestamp)
+        always {
+            raise echo event "store_temperature" attributes {
+                "temperature": degrees,
+                "timestamp": timestamp
+            }
         }
     }
 
