@@ -10,12 +10,17 @@ ruleset wovyn_base {
         temperatures = function() {
             ent:temperatures
         }
+
+        voilations = function() {
+            ent:voilations
+        }
     }
 
-    rule clear_temps {
-        select when echo clear
+    rule clear_temperatures {
+        select when sensor reading_reset
         always {
             ent:temperatures := clear_temps
+            ent:voilations := clear_temps
         }
     }
 
@@ -28,6 +33,18 @@ ruleset wovyn_base {
         always {
             // ent:temperatures := ent:temperatures.defaultsTo(clear_temps, "initialization was needed")
             ent:temperatures{passed_timestamp} := passed_temp
+        }
+    }
+
+    rule store_violation {
+        select when echo store_violation
+        pre {
+            passed_temp = event:attrs{"temperature"}.klog("passed in temperature: ")
+            passed_timestamp = event:attrs{"timestamp"}.klog("passed in timestamp: ")
+        }
+        always {
+            // ent:violations := ent:violations.defaultsTo(clear_temps, "initialization was needed")
+            ent:violations{passed_timestamp} := passed_temp
         }
     }
   
@@ -60,6 +77,11 @@ ruleset wovyn_base {
         fired {
             raise wovyn event "threshold_violation" attributes {
                 "degrees":degrees,
+            } if voilation
+
+            raise echo event "store_violation" attributes {
+                "temperature":degrees,
+                "timestamp":timestamp
             } if voilation
         }
     }
