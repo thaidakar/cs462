@@ -16,7 +16,11 @@ ruleset temperature_store {
         }
 
         inrange_temperatures = function() {
-            ent:temperatures.intersection(ent:violations)
+            temperatures().filter(checkViolation)
+        }
+
+        checkViolation = function(temp) {
+            temp > 75
         }
     }
 
