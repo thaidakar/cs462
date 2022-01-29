@@ -16,7 +16,7 @@ ruleset wovyn_base {
       }
       fired {
           raise wovyn event "new_temperature_reading" attributes {
-            "temperatureF" : degrees,
+            "temperature" : degrees,
             "timestamp" : time:now()
           } if genericThing != null
       }
@@ -26,7 +26,7 @@ ruleset wovyn_base {
         select when wovyn new_temperature_reading
         pre {
             content = event:attrs.klog("attrs")
-            degrees = event:attrs{"temperatureF"}
+            degrees = event:attrs{"temperature"}
             timestamp = event:attrs{"timestamp"}
             voilation = degrees > temperature_threshold
         }

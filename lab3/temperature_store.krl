@@ -35,7 +35,7 @@ ruleset temperature_store {
     rule collect_temperatures {
         select when wovyn new_temperature_reading
         pre {
-            passed_temp = event:attrs{"temperatureF"}
+            passed_temp = event:attrs{"temperature"}
             passed_timestamp = event:attrs{"timestamp"}
         }
         send_directive("Storing " + passed_temp + " @ " + passed_timestamp)
