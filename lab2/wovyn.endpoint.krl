@@ -10,12 +10,13 @@ ruleset wovyn_base {
       pre {
         content = event:attrs.klog("attrs")
         genericThing = event:attrs{"genericThing"}
-        data = genericThing{"data"}.decode()
-        temperature = data{"temperature"}.decode()
+        data = genericThing{"data"}
+        temperature = data{"temperature"}
+        degrees = temperature[0]{"temperatureF"}
       }
       fired {
           raise wovyn event "new_temperature_reading" attributes {
-            "temperature" : temperature,
+            "temperatureF" : degrees,
             "timestamp" : time:now()
           } if genericThing != null
       }
@@ -25,9 +26,8 @@ ruleset wovyn_base {
         select when wovyn new_temperature_reading
         pre {
             content = event:attrs.klog("attrs")
-            temperature = event:attrs{"temperature"}
+            degrees = event:attrs{"temperatureF"}
             timestamp = event:attrs{"timestamp"}
-            degrees = temperature[0]{"temperatureF"}.decode()
             voilation = degrees > temperature_threshold
         }
         send_directive(degrees + " / " + temperature_threshold + " recorded at " + timestamp)
