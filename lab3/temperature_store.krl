@@ -20,7 +20,7 @@ ruleset temperature_store {
         }
 
         checkViolation = function(temp) {
-            temp > 75
+            temp < 75
         }
     }
 
