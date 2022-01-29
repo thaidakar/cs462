@@ -1,55 +1,10 @@
 ruleset wovyn_base {
     meta {
-        shares temperatures, voilations
     }
     global {
         temperature_threshold = 75
-
-        clear_temps = { "temperature": 0, "timestamp": 0 }
-
-        temperatures = function() {
-            ent:temperatures
-        }
-
-        voilations = function() {
-            ent:voilations
-        }
     }
-
-    rule clear_temperatures {
-        select when sensor reading_reset
-        always {
-            ent:temperatures := clear_temps
-            ent:voilations := clear_temps
-        }
-    }
-
-    rule store_temperature {
-        select when echo store_temperature
-        pre {
-            passed_temp = event:attrs{"temperature"}.klog("passed in temperature: ")
-            passed_timestamp = event:attrs{"timestamp"}.klog("passed in timestamp: ")
-        }
-        send_directive("Storing " + passed_temp + " @ " + passed_timestamp)
-        always {
-            // ent:temperatures := ent:temperatures.defaultsTo(clear_temps, "initialization was needed")
-            ent:temperatures{passed_timestamp} := passed_temp
-        }
-    }
-
-    rule store_violation {
-        select when echo store_violation
-        pre {
-            passed_temp = event:attrs{"temperature"}.klog("passed in temperature: ")
-            passed_timestamp = event:attrs{"timestamp"}.klog("passed in timestamp: ")
-        }
-        send_directive("Storing violation " + passed_temp + " @ " + passed_timestamp)
-        always {
-            // ent:violations := ent:violations.defaultsTo(clear_temps, "initialization was needed")
-            ent:violations{passed_timestamp} := passed_temp
-        }
-    }
-  
+ 
     rule process_heartbeat {
       select when wovyn heartbeat
       pre {
