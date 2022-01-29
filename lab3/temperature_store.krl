@@ -16,7 +16,7 @@ ruleset temperature_store {
         }
 
         inrange_temperatures = function() {
-            ent:temperatures.unique(ent:violations)
+            ent:temperatures.intersection(ent:violations)
         }
     }
 
