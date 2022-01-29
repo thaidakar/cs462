@@ -32,11 +32,11 @@ ruleset temperature_store {
         }
     }
 
-    rule store_temperature {
-        select when echo store_temperature
+    rule collect_temperatures {
+        select when wovyn new_temperature_reading
         pre {
-            passed_temp = event:attrs{"temperature"}.klog("passed in temperature: ")
-            passed_timestamp = event:attrs{"timestamp"}.klog("passed in timestamp: ")
+            passed_temp = event:attrs{"temperatureF"}
+            passed_timestamp = event:attrs{"timestamp"}
         }
         send_directive("Storing " + passed_temp + " @ " + passed_timestamp)
         always {
@@ -44,8 +44,8 @@ ruleset temperature_store {
         }
     }
 
-    rule store_violation {
-        select when echo store_violation
+    rule collect_threshold_violations {
+        select when wovyn threshold_violation
         pre {
             passed_temp = event:attrs{"temperature"}.klog("passed in temperature: ")
             passed_timestamp = event:attrs{"timestamp"}.klog("passed in timestamp: ")
@@ -53,20 +53,6 @@ ruleset temperature_store {
         send_directive("Storing violation " + passed_temp + " @ " + passed_timestamp)
         always {
             ent:violations{passed_timestamp} := passed_temp
-        }
-    }
-
-    rule temperature_store {
-        select when wovyn new_temperature_reading
-        pre {
-            degrees = event:attrs{"temperatureF"}
-            timestamp = event:attrs{"timestamp"}
-        }
-        always {
-            raise echo event "store_temperature" attributes {
-                "temperature": degrees,
-                "timestamp": timestamp
-            }
         }
     }
   }

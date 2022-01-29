@@ -33,10 +33,6 @@ ruleset wovyn_base {
         send_directive(degrees + " / " + temperature_threshold + " recorded at " + timestamp)
         fired {
             raise wovyn event "threshold_violation" attributes {
-                "degrees":degrees,
-            } if voilation
-
-            raise echo event "store_violation" attributes {
                 "temperature":degrees,
                 "timestamp":timestamp
             } if voilation
@@ -47,8 +43,8 @@ ruleset wovyn_base {
         select when wovyn threshold_violation
         pre {
             content = event:attrs.klog("attrs")
-            degrees = event:attrs{"degrees"}
-            message = "Temperature: " + degrees + " is too hot! (over " + temperature_threshold + ")" 
+            temperature = event:attrs{"temperature"}
+            message = "Temperature: " + temperature + " is too hot! (over " + temperature_threshold + ")" 
         }
         send_directive("Sending message...")
         fired {
