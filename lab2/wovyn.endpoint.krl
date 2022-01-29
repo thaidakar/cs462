@@ -26,7 +26,7 @@ ruleset wovyn_base {
             passed_timestamp = event:attrs{"timestamp"}.klog("passed in timestamp: ")
         }
         always {
-            ent:temperatures := ent:temperatures.defaultsTo(clear_temps, "initialization was needed")
+            // ent:temperatures := ent:temperatures.defaultsTo(clear_temps, "initialization was needed")
             ent:temperatures{passed_timestamp} := passed_temp
         }
     }
