@@ -54,7 +54,7 @@ ruleset temperature_store {
         }
         send_directive("Storing violation " + passed_temp + " @ " + passed_timestamp)
         always {
-            ent:violations{passed_timestamp} := passed_temp
+            ent:violations{"violations"} := ent:violations{"violations"}.defaultsTo([]).append(passed_temp)
         }
     }
   }
