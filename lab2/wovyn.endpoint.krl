@@ -37,8 +37,6 @@ ruleset wovyn_base {
             "temperature" : degrees,
             "timestamp" : time:now()
         } if genericThing != null
-
-        ent:profile{"temperature_threshold"} := ent:profile{"temperature_threshold"}
       }
     }
 
