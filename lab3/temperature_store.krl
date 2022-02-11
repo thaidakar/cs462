@@ -2,6 +2,8 @@ ruleset temperature_store {
     meta {
         shares temperatures, threshold_violations, inrange_temperatures
         provides temperatures, threshold_violations, inrange_temperatures
+
+        use module wovyn_base alias base
     }
 
     global {
@@ -20,7 +22,7 @@ ruleset temperature_store {
         }
 
         checkViolation = function(temp) {
-            temp < 75 && temp > 0
+            temp < base:threshold() && temp > 0
         }
     }
 
