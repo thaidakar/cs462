@@ -17,6 +17,7 @@ ruleset wovyn_base {
  
     rule process_heartbeat {
       select when wovyn heartbeat
+
       pre {
         content = event:attrs.klog("attrs")
         genericThing = event:attrs{"genericThing"}
@@ -24,39 +25,37 @@ ruleset wovyn_base {
         temperature = data{"temperature"}
         degrees = temperature[0]{"temperatureF"}
       }
+
       fired {
-          raise wovyn event "new_temperature_reading" attributes {
+        //initialize if null
+        ent:profile{"temperature_threshold"} := ent:profile{"temperature_threshold"} || 75
+        ent:profile{"location"} := ent:profile{"location"} || "right here!"
+        ent:profile{"name"} := ent:profile{"name"} || "seanethan"
+        ent:profile{"sms"} := ent:profile{"sms"} || "+18323491263"
+        
+        raise wovyn event "new_temperature_reading" attributes {
             "temperature" : degrees,
             "timestamp" : time:now()
-          } if genericThing != null
+        } if genericThing != null
 
-          ent:profile{"temperature_threshold"} := ent:profile{"temperature_threshold"} || 75
+        ent:profile{"temperature_threshold"} := ent:profile{"temperature_threshold"}
       }
     }
 
     rule sensor_profile {
         select when sensor profile_updated
         pre {
-            threshold = event:attrs{"threshold"} || 75
-            location = event:attrs{"location"} || "right here"
-            name = event:attrs{"name"} || "seanethan"
-            sms = event:attrs{"sms"} || "8323491263"
+            content = event:attrs.klog("attrs")
+            threshold = event:attrs{"threshold"}
+            location = event:attrs{"location"}
+            name = event:attrs{"name"}
+            sms = event:attrs{"sms"}
         }
         always {
-            ent:profile{"temperature_threshold"} := threshold
-            ent:profile{"location"} := location
-            ent:profile{"name"} := name
-            ent:profile{"sms"} := sms
-        }
-    }
-
-    rule update_threshold {
-        select when update threshold
-        pre {
-            threshold = event:attrs{"threshold"} || 75
-        }
-        always {
-            ent:profile{"temperature_threshold"} := threshold
+            ent:profile{"temperature_threshold"} := threshold || ent:profile{"temperature_threshold"}
+            ent:profile{"location"} := location || ent:profile{"location"}
+            ent:profile{"name"} := name || ent:profile{"name"}
+            ent:profile{"sms"} := sms || ent:profile{"sms"}
         }
     }
 
@@ -88,7 +87,7 @@ ruleset wovyn_base {
         fired {
             raise twilio event "send_message" attributes {
                 "message" : message,
-                "toNum": ent:profile{"sms"} || ("+18323491263")
+                "toNum": ent:profile{"sms"}
             }
         }
     }
