@@ -100,7 +100,7 @@ ruleset manage_sensors {
                 "eci": eci
             } if sensor_id
 
-            raise installer event "install_wovyn_base" attributes {
+            raise installer event "install_sensor_profile" attributes {
                 "eci": eci
             } if sensor_id
 
@@ -108,7 +108,7 @@ ruleset manage_sensors {
                 "eci": eci
             } if sensor_id
 
-            raise installer event "install_sensor_profile" attributes {
+            raise installer event "install_wovyn_base" attributes {
                 "eci": eci
             } if sensor_id
         }
