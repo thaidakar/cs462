@@ -2,7 +2,7 @@ ruleset manage_sensors {
     meta {
         use module io.picolabs.wrangler alias wrangler
 
-        shares getChildren, getSensors
+        shares getChildren, getSensors, getComplete
     }
 
     global {
@@ -67,8 +67,8 @@ ruleset manage_sensors {
         select when wrangler new_child_created
         pre {
             eci = event:attrs{"eci"}
-            the_sensor = { "eci" : eci }
             name = event:attrs{"name"}
+            the_sensor = { "eci" : eci, "name": name }
             sensor_id = event:attrs{"sensor_id"}
         }
         fired {
@@ -127,7 +127,36 @@ ruleset manage_sensors {
         }
         always {
             ent:complete{sensor_id} := ent:complete{sensor_id}.defaultsTo([]).append(rule_name)
+
+            raise profile event "detect_completed_sensor" attributes {
+                "total" : ent:complete{sensor_id}.length(),
+                "sensor_id": sensor_id
+            }
         }
+    }
+
+    rule detect_completed_sensor {
+        select when profile detect_completed_sensor
+        pre {
+            all_rulesets_installed = event:attrs{"total"}.defaultsTo(0) == 4
+            sensor_id = event:attrs{"sensor_id"}
+            eci = ent:sensors{sensor_id}{"eci"}
+            name = ent:sensors{sensor_id}{"name"}
+        }
+        if all_rulesets_installed && eci && name && sensor_id then event:send(
+            {
+                "eci" : eci,
+                "eid" : "profile_updated",
+                "domain" : "sensor", "type": "profile_updated",
+                "attrs" : {
+                    "config" : {},
+                    "sensor_id" : sensor_id,
+                    "parent_eci" : meta:eci,
+                    "name" : name,
+                    "threshold" : ent:default_threshold
+                }
+            }
+        )
     }
 
     /*
@@ -149,6 +178,7 @@ ruleset manage_sensors {
         fired {
             ent:sensors := ent:sensors.defaultsTo({})
             ent:complete := ent:complete.defaultsTo({})
+            ent:default_threshold := ent:default_threshold.defaultsTo(76)
         }
     }
   }
