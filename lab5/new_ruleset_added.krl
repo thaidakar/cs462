@@ -20,12 +20,9 @@ ruleset new_ruleset_installed {
 
     rule install_emitter {
         select when installer install_emitter
-        pre {
-            eci = event:attrs{"eci"}
-        }
-        if eci.klog("installing emitter...") then event:send(
+        if meta:eci.klog("installing emitter...") then event:send(
                 { 
-                    "eci" : eci,
+                    "eci" : meta:eci,
                     "eid" : "io.picolabs.wovyn.emitter",
                     "domain" : "wrangler", "type" : "install_ruleset_request",
                     "attrs" : {
@@ -38,12 +35,9 @@ ruleset new_ruleset_installed {
 
     rule install_wovyn_base {
         select when installer install_wovyn_base
-        pre {
-            eci = event:attrs{"eci"}
-        }
-        if eci.klog("installing wovyn_base...") then event:send(
+        if meta:eci.klog("installing wovyn_base...") then event:send(
                 { 
-                    "eci" : eci,
+                    "eci" : meta:eci,
                     "eid" : "wovyn_base",
                     "domain" : "wrangler", "type" : "install_ruleset_request",
                     "attrs" : {
@@ -72,12 +66,9 @@ ruleset new_ruleset_installed {
 
     rule install_temperature_store {
         select when installer install_temperature_store
-        pre {
-            eci = event:attrs{"eci"}
-        }
-        if eci.klog("installing temperature_store...") then event:send(
+        if meta:eci.klog("installing temperature_store...") then event:send(
                 { 
-                    "eci" : eci,
+                    "eci" : meta:eci,
                     "eid" : "temperature_store",
                     "domain" : "wrangler", "type" : "install_ruleset_request",
                     "attrs" : {
@@ -99,12 +90,9 @@ ruleset new_ruleset_installed {
 
     rule install_sensor_profile {
         select when installer install_sensor_profile
-        pre {
-            eci = event:attrs{"eci"}
-        }
-        if eci.klog("installing sensor_profile...") then event:send(
+        if meta:eci.klog("installing sensor_profile...") then event:send(
                 { 
-                    "eci" : eci,
+                    "eci" : meta:eci,
                     "eid" : "profile_ruleset",
                     "domain" : "wrangler", "type" : "install_ruleset_request",
                     "attrs" : {
