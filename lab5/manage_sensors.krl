@@ -159,10 +159,11 @@ ruleset manage_sensors {
     rule query_sensors {
         select when sensor query
         pre {
-            result = ent:sensors.map(function(sensor_id, data) {
-                throwup = data.klog("data = ")
-                eci = data{"eci"}.klog("eci = ")
-                answer = wrangler:picoQuery(eci,"temperature_store","temperatures");
+            result = ent:sensors.map(function(something, sensor_id, x) {
+                a = something.klog("something = ")
+                b = sensor_id.klog("sensor_id = ")
+                c = x.klog("x = ")
+                answer = wrangler:picoQuery(a{"eci"},"temperature_store","temperatures");
                 ent:temperatures{sensor_id}.defaultsTo({}).put(answer)
             })
 
