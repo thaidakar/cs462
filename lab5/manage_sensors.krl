@@ -79,6 +79,7 @@ ruleset manage_sensors {
             name = event:attrs{"name"}
             sensor_id = event:attrs{"sensor_id"}
         }
+        
         if sensor_id.klog("found sensor_id")
             then event:send(
                 {
@@ -93,6 +94,24 @@ ruleset manage_sensors {
                     }
                 }
             )
+        
+        fired {
+            raise installer event "install_emitter" attributes {
+                "eci": eci
+            } if sensor_id
+
+            raise installer event "install_wovyn_base" attributes {
+                "eci": eci
+            } if sensor_id
+
+            raise installer event "install_temperature_store" attributes {
+                "eci": eci
+            } if sensor_id
+
+            raise installer event "install_sensor_profile" attributes {
+                "eci": eci
+            } if sensor_id
+        }
     }
 
     /*
@@ -110,7 +129,7 @@ ruleset manage_sensors {
      */
 
     rule initialize_sensors {
-        select when wrangler ruleset_installed where event:attr("rids") >< meta:rid
+        select when wrangler ruleset_installed where event:attr{"rids"} >< meta:rid
         fired {
             ent:sensors := ent:sensors.defaultsTo({})
         }
