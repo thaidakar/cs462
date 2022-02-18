@@ -17,14 +17,14 @@ ruleset new_ruleset_installed {
     rule install_emitter {
         select when wrangler ruleset_installed
             where event:attr("rids") >< "new_ruleset_installed"
-        
+            
         event:send(
             { 
                 "eci" : meta:eci,
                 "eid" : "io.picolabs.wovyn.emitter",
                 "domain" : "wrangler", "type" : "install_ruleset_request",
                 "attrs" : {
-                    "url" : "",
+                    "url" : "https://raw.githubusercontent.com/windley/temperature-network/main/io.picolabs.wovyn.emitter.krl",
                     "rid" : "io.picolabs.wovyn.emitter",
                     "config" : {}
                 }
