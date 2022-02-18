@@ -2,20 +2,16 @@ ruleset manage_sensors {
     meta {
         use module io.picolabs.wrangler alias wrangler
 
-        shares getChildren, getSensors, getComplete
+        shares getSensors
     }
 
     global {
-        getChildren = function() {
-            wrangler:children()
-        }
-
         getSensors = function() {
             ent:sensors
         }
 
-        getComplete = function(sensor_id) {
-            ent:complete{sensor_id}
+        getTemperatures = function() {
+            ent:temperatures
         }
     }
 
@@ -38,7 +34,7 @@ ruleset manage_sensors {
     }
 
     rule delete_sensor {
-        select when section delete_sensor
+        select when sensor unneeded_sensor
         pre {
             sensor_id = event:attrs{"sensor_id"}
             exists = ent:sensors >< sensor_id
@@ -61,6 +57,7 @@ ruleset manage_sensors {
         fired {
             ent:sensors := {}
             ent:complete := {}
+            ent:temperatures := {}
         }
     }
 
@@ -129,14 +126,14 @@ ruleset manage_sensors {
         always {
             ent:complete{sensor_id} := ent:complete{sensor_id}.defaultsTo([]).append(rule_name)
 
-            raise profile event "detect_completed_sensor" attributes {
+            raise sensor event "handle_completed_sensor" attributes {
                 "sensor_id": sensor_id
             } if ent:complete{sensor_id}.length() == 4
         }
     }
 
-    rule detect_completed_sensor {
-        select when profile detect_completed_sensor
+    rule handle_completed_sensor {
+        select when sensor handle_completed_sensor
         pre {
             
             sensor_id = event:attrs{"sensor_id"}
@@ -153,32 +150,33 @@ ruleset manage_sensors {
                     "sensor_id" : sensor_id,
                     "parent_eci" : meta:eci,
                     "name" : name,
-                    "threshold" : ent:default_threshold
+                    "temperature_threshold" : ent:default_threshold
                 }
             }
         )
     }
 
-    /*
-    rule query_rule {
+    rule query_sensors {
+        select when sensor query
         pre {
-            eci = eci_to_other_pico;
-            args = {"arg1": val1, "arg2": val2};
-            answer = wrangler:picoQuery(eci,"my.ruleset.id","myFunction",{}.put(args));
+            result = ent:sensors.map(function(sensor_id, data) {
+                eci = data{"eci"}
+                answer = wrangler:picoQuery(eci,"temperature_store","temperatures");
+                ent:temperatures{sensor_id}.defaultsTo({}).put(answer)
+            })
+
         }
-        if answer{"error"}.isnull() then noop();
-        fired {
-            // process using answer
-        }
+        send_directive(result)
     }
-     */
+
 
     rule initialize_sensors {
-        select when wrangler ruleset_installed where event:attr{"rids"} >< meta:rid
+        select when wrangler ruleset_installed where event:attrs{"rids"} >< meta:rid
         fired {
             ent:sensors := ent:sensors.defaultsTo({})
             ent:complete := ent:complete.defaultsTo({})
             ent:default_threshold := ent:default_threshold.defaultsTo(76)
+            ent:temperatures := ent:temperatures.defaultsTo({})
         }
     }
   }
