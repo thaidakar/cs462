@@ -150,7 +150,7 @@ ruleset manage_sensors {
                     "sensor_id" : sensor_id,
                     "parent_eci" : meta:eci,
                     "name" : name,
-                    "temperature_threshold" : ent:default_threshold
+                    "threshold" : ent:default_threshold
                 }
             }
         )
