@@ -96,28 +96,35 @@ ruleset manage_sensors {
                 }
             )
         
-        // fired {
-        //     raise installer event "install_emitter" attributes {
-        //         "eci": eci
-        //     } if sensor_id
+        fired {
+            raise installer event "install_emitter" attributes {
+                "eci": eci
+            } if sensor_id
 
-        //     raise installer event "install_sensor_profile" attributes {
-        //         "eci": eci
-        //     } if sensor_id
+            raise installer event "install_sensor_profile" attributes {
+                "eci": eci
+            } if sensor_id
 
-        //     raise installer event "install_temperature_store" attributes {
-        //         "eci": eci
-        //     } if sensor_id
+            raise installer event "install_temperature_store" attributes {
+                "eci": eci
+            } if sensor_id
 
-        //     raise installer event "install_wovyn_base" attributes {
-        //         "eci": eci
-        //     } if sensor_id
-        // }
+            raise installer event "install_wovyn_base" attributes {
+                "eci": eci
+            } if sensor_id
+        }
     }
 
     rule installer_complete {
         select when installer complete
-        send_directive("Initialization comlete")
+        pre {
+            rule_name = event:attrs{"rule"}
+            sensor_id = event:attrs{"sensor_id"}
+        }
+        send_directive("Current complete for sensor " + sensor_id + " = " + ent:complete{sensor_id} + ", adding " + rule_name)
+        always {
+            ent:complete{sensor_id} := ent:complete{sensor_id}.defaultsTo([]).append(rule_name)
+        }
     }
 
     /*
@@ -138,6 +145,7 @@ ruleset manage_sensors {
         select when wrangler ruleset_installed where event:attr{"rids"} >< meta:rid
         fired {
             ent:sensors := ent:sensors.defaultsTo({})
+            ent:complete := ent:complete.defaultsTo({})
         }
     }
   }
