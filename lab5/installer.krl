@@ -15,7 +15,6 @@ ruleset installer {
                     "domain" : "wrangler", "type" : "install_ruleset_request",
                     "attrs" : {
                         "url" : "https://raw.githubusercontent.com/windley/temperature-network/main/io.picolabs.wovyn.emitter.krl",
-                        "rid" : "io.picolabs.wovyn.emitter",
                         "config" : {}
                     }
                 }
@@ -34,7 +33,6 @@ ruleset installer {
                     "domain" : "wrangler", "type" : "install_ruleset_request",
                     "attrs" : {
                         "url" : "https://raw.githubusercontent.com/thaidakar/cs462/main/lab2/wovyn.endpoint.krl",
-                        "rid" : "wovyn_base",
                         "config" : {}
                     }
                 }
@@ -53,7 +51,6 @@ ruleset installer {
                     "domain" : "wrangler", "type" : "install_ruleset_request",
                     "attrs" : {
                         "url" : "https://raw.githubusercontent.com/thaidakar/cs462/main/lab3/temperature_store.krl",
-                        "rid" : "temperature_store",
                         "config" : {}
                     }
                 }
@@ -72,7 +69,6 @@ ruleset installer {
                     "domain" : "wrangler", "type" : "install_ruleset_request",
                     "attrs" : {
                         "url" : "https://github.com/thaidakar/cs462/blob/main/lab4/profile.krl",
-                        "rid" : "profile_ruleset",
                         "config" : {}
                     }
                 }

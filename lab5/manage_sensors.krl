@@ -38,7 +38,7 @@ ruleset manage_sensors {
         pre {
             sensor_id = event:attrs{"sensor_id"}
             exists = ent:sensors >< sensor_id
-            eci_to_delete = ent:sensors{sensor_id}
+            eci_to_delete = ent:sensors{sensor_id}{"eci"}
         }
 
         if exists && eci_to_delete then
