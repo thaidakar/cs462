@@ -65,13 +65,34 @@ ruleset manage_sensors {
             eci = event:attrs{"eci"}
             the_sensor = { "eci" : eci }
             name = event:attrs{"name"}
-            backgroundColor = event:attrs{"backgroundColor"}
             sensor_id = event:attrs{"sensor_id"}
         }
-        send_directive("New child PICO created - ", { "sensor_id":sensor_id, "eci":eci, "name":name })
         fired {
             ent:sensors{sensor_id} := the_sensor
         }
+    }
+
+    rule install_rulesets {
+        select when wrangler new_child_created
+        pre {
+            eci = event:attrs{"eci"}
+            name = event:attrs{"name"}
+            sensor_id = event:attrs{"sensor_id"}
+        }
+        if sensor_id.klog("found sensor_id")
+            then event:send(
+                {
+                    "eci" : eci,
+                    "eid" : "install-ruleset",
+                    "domain" : "wrangler", "type": "install_ruleset_request",
+                    "attrs" : {
+                        "url" : "https://raw.githubusercontent.com/thaidakar/cs462/main/lab5/new_ruleset_added.krl",
+                        "rid" : "new_ruleset_installed",
+                        "config" : {},
+                        "sensor_id" : sensor_id
+                    }
+                }
+            )
     }
 
     /*
