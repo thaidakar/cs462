@@ -166,7 +166,7 @@ ruleset manage_sensors {
             })
 
         }
-        send_directive(result)
+        send_directive(ent:temperatures)
     }
 
 
