@@ -18,11 +18,11 @@ ruleset temperature_store {
         }
 
         inrange_temperatures = function() {
-            temperatures().filter(checkViolation)
+            temperatures(){"temperatures"}.filter(checkViolation)
         }
 
         checkViolation = function(temp) {
-            temp < profile:threshold()
+            temp{"temperature"} < profile:threshold()
         }
     }
 
