@@ -68,7 +68,7 @@ ruleset installer {
                     "eid" : "profile_ruleset",
                     "domain" : "wrangler", "type" : "install_ruleset_request",
                     "attrs" : {
-                        "url" : "https://github.com/thaidakar/cs462/blob/main/lab4/profile.krl",
+                        "url" : "https://raw.githubusercontent.com/thaidakar/cs462/main/lab4/profile.krl",
                         "config" : {}
                     }
                 }

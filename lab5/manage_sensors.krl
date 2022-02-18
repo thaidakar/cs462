@@ -90,7 +90,8 @@ ruleset manage_sensors {
                         "url" : "https://raw.githubusercontent.com/thaidakar/cs462/main/lab5/new_ruleset_added.krl",
                         "rid" : "new_ruleset_installed",
                         "config" : {},
-                        "sensor_id" : sensor_id
+                        "sensor_id" : sensor_id,
+                        "parent_eci" : meta:eci
                     }
                 }
             )
