@@ -164,7 +164,7 @@ ruleset manage_sensors {
                 return hm{sensor_id}.put(wrangler:picoQuery(data{"eci"},"temperature_store","temperatures"))
             })
         }
-        send_directive("r = " + results + " hm = " + hm)
+        send_directive(results, hm)
     }
 
 
