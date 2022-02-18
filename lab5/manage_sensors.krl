@@ -160,7 +160,7 @@ ruleset manage_sensors {
         select when sensor query
         pre {
             result = ent:sensors.map(function(sensor_id, data) {
-                eci = data{"eci"}
+                eci = data{"eci"}.klog("eci = ")
                 answer = wrangler:picoQuery(eci,"temperature_store","temperatures");
                 ent:temperatures{sensor_id}.defaultsTo({}).put(answer)
             })
