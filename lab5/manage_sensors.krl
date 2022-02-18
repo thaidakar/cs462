@@ -9,10 +9,6 @@ ruleset manage_sensors {
         getSensors = function() {
             ent:sensors
         }
-
-        getTemperatures = function() {
-            ent:temperatures
-        }
     }
 
     rule handle_new_sensor {
