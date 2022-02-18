@@ -22,7 +22,7 @@ ruleset temperature_store {
         }
 
         checkViolation = function(temp) {
-            temp < profile:threshold() && temp > 0
+            temp < profile:threshold()
         }
     }
 
