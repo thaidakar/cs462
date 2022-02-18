@@ -129,7 +129,6 @@ ruleset manage_sensors {
             ent:complete{sensor_id} := ent:complete{sensor_id}.defaultsTo([]).append(rule_name)
 
             raise profile event "detect_completed_sensor" attributes {
-                "total" : ent:complete{sensor_id}.length(),
                 "sensor_id": sensor_id
             }
         }
@@ -138,8 +137,9 @@ ruleset manage_sensors {
     rule detect_completed_sensor {
         select when profile detect_completed_sensor
         pre {
-            all_rulesets_installed = event:attrs{"total"}.defaultsTo(0) == 4
+            
             sensor_id = event:attrs{"sensor_id"}
+            all_rulesets_installed = ent:complete{sensor_id}.length() == 8
             eci = ent:sensors{sensor_id}{"eci"}
             name = ent:sensors{sensor_id}{"name"}
         }
