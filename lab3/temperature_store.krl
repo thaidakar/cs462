@@ -3,7 +3,7 @@ ruleset temperature_store {
         shares temperatures, threshold_violations, inrange_temperatures
         provides temperatures, threshold_violations, inrange_temperatures
 
-        use module wovyn_base alias base
+        use module profile_ruleset alias base
     }
 
     global {
