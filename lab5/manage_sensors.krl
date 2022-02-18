@@ -60,6 +60,7 @@ ruleset manage_sensors {
         select when sensor clear_data
         fired {
             ent:sensors := {}
+            ent:complete := {}
         }
     }
 
@@ -130,7 +131,7 @@ ruleset manage_sensors {
 
             raise profile event "detect_completed_sensor" attributes {
                 "sensor_id": sensor_id
-            } if ent:complete{sensor_id}.length() == 8
+            } if ent:complete{sensor_id}.length() == 4
         }
     }
 
