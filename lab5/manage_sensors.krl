@@ -130,7 +130,7 @@ ruleset manage_sensors {
 
             raise profile event "detect_completed_sensor" attributes {
                 "sensor_id": sensor_id
-            }
+            } if ent:complete{sensor_id}.length() == 8
         }
     }
 
@@ -139,11 +139,10 @@ ruleset manage_sensors {
         pre {
             
             sensor_id = event:attrs{"sensor_id"}
-            all_rulesets_installed = ent:complete{sensor_id}.length() == 8
             eci = ent:sensors{sensor_id}{"eci"}
             name = ent:sensors{sensor_id}{"name"}
         }
-        if all_rulesets_installed && eci && name && sensor_id then event:send(
+        if eci && name && sensor_id then event:send(
             {
                 "eci" : eci,
                 "eid" : "profile_updated",
