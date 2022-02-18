@@ -84,7 +84,7 @@ ruleset manage_sensors {
             then event:send(
                 {
                     "eci" : eci,
-                    "eid" : "install-ruleset",
+                    "eid" : "install_ruleset",
                     "domain" : "wrangler", "type": "install_ruleset_request",
                     "attrs" : {
                         "url" : "https://raw.githubusercontent.com/thaidakar/cs462/main/lab5/new_ruleset_added.krl",
@@ -96,23 +96,28 @@ ruleset manage_sensors {
                 }
             )
         
-        fired {
-            raise installer event "install_emitter" attributes {
-                "eci": eci
-            } if sensor_id
+        // fired {
+        //     raise installer event "install_emitter" attributes {
+        //         "eci": eci
+        //     } if sensor_id
 
-            raise installer event "install_sensor_profile" attributes {
-                "eci": eci
-            } if sensor_id
+        //     raise installer event "install_sensor_profile" attributes {
+        //         "eci": eci
+        //     } if sensor_id
 
-            raise installer event "install_temperature_store" attributes {
-                "eci": eci
-            } if sensor_id
+        //     raise installer event "install_temperature_store" attributes {
+        //         "eci": eci
+        //     } if sensor_id
 
-            raise installer event "install_wovyn_base" attributes {
-                "eci": eci
-            } if sensor_id
-        }
+        //     raise installer event "install_wovyn_base" attributes {
+        //         "eci": eci
+        //     } if sensor_id
+        // }
+    }
+
+    rule installer_complete {
+        select when installer complete
+        send_directive("Initialization comlete")
     }
 
     /*
