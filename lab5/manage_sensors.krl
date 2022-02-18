@@ -30,7 +30,7 @@ ruleset manage_sensors {
         notfired {
             raise wrangler event "new_child_request"
                 attributes {
-                    "name" : "Sensor " + sensor_id + " Pico",
+                    "name" : "Sensor " + sensor_id,
                     "backgroundColor":"#ff69b4",
                     "sensor_id": sensor_id
                 }
