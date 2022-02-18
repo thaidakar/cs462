@@ -3,7 +3,7 @@ ruleset temperature_store {
         shares temperatures, threshold_violations, inrange_temperatures
         provides temperatures, threshold_violations, inrange_temperatures
 
-        use module profile_ruleset alias base
+        use module profile_ruleset alias profile
     }
 
     global {
@@ -22,7 +22,7 @@ ruleset temperature_store {
         }
 
         checkViolation = function(temp) {
-            temp < base:threshold() && temp > 0
+            temp < profile:threshold() && temp > 0
         }
     }
 
