@@ -13,6 +13,10 @@ ruleset manage_sensors {
         getSensors = function() {
             ent:sensors
         }
+
+        getComplete = function(sensor_id) {
+            ent:complete{sensor_id}
+        }
     }
 
     rule handle_new_sensor {
@@ -121,7 +125,6 @@ ruleset manage_sensors {
             rule_name = event:attrs{"rule"}
             sensor_id = event:attrs{"sensor_id"}
         }
-        send_directive("Current complete for sensor " + sensor_id + " = " + ent:complete{sensor_id} + ", adding " + rule_name)
         always {
             ent:complete{sensor_id} := ent:complete{sensor_id}.defaultsTo([]).append(rule_name)
         }
