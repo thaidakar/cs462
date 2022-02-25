@@ -2,12 +2,20 @@ ruleset manage_sensors {
     meta {
         use module io.picolabs.wrangler alias wrangler
 
-        shares getSensors
+        shares getSensors, get_temps
     }
 
     global {
         getSensors = function() {
             ent:sensors
+        }
+
+        get_temps = function() {
+            ent:sensors.map(function(data, sensor_id) {
+                d = data{"eci"}.klog("eci = ")
+                s = sensor_id.klog("sensor_id = ")
+                wrangler:picoQuery(data{"eci"},"temperature_store","temperatures")
+            })
         }
     }
 
@@ -151,19 +159,6 @@ ruleset manage_sensors {
             }
         )
     }
-
-    rule query_sensors {
-        select when sensor query
-        pre {
-            results = ent:sensors.map(function(data, sensor_id) {
-                d = data{"eci"}.klog("eci = ")
-                s = sensor_id.klog("sensor_id = ")
-                return wrangler:picoQuery(data{"eci"},"temperature_store","temperatures")
-            })
-        }
-        send_directive(results)
-    }
-
 
     rule initialize_sensors {
         select when wrangler ruleset_installed where event:attrs{"rids"} >< meta:rid
