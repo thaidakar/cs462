@@ -2,7 +2,7 @@ ruleset manage_sensors {
     meta {
         use module io.picolabs.wrangler alias wrangler
 
-        shares getSensors, get_temps
+        shares getSensors, get_temps, get_profiles
     }
 
     global {
@@ -12,9 +12,13 @@ ruleset manage_sensors {
 
         get_temps = function() {
             ent:sensors.map(function(data, sensor_id) {
-                d = data{"eci"}.klog("eci = ")
-                s = sensor_id.klog("sensor_id = ")
                 wrangler:picoQuery(data{"eci"},"temperature_store","temperatures")
+            })
+        }
+
+        get_profiles = function() {
+            ent:sensors.map(function(data, sensor_id) {
+                wrangler:picoQuery(data{"eci"}, "profile_ruleset", "get_profile");
             })
         }
     }
