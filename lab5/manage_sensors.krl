@@ -186,7 +186,7 @@ ruleset manage_sensors {
             "eci": eci,
             "domain": "wrangler", "name":"subscription",
             "attrs": {
-                "wellKnown_Tx": wellKnown_Tx,
+                "wellKnown_Tx": subs:wellKnown_Rx(){"id"},
                 "Rx_role": "manager", "Tx_role":"sensor",
                 "name":name+"-manager", "channel_type": "subscription",
                 "sensor_id": sensor_id
@@ -202,7 +202,7 @@ ruleset manage_sensors {
         pre {
             // eci = ent:sensors{sensor_id}{"eci"}
             // name = ent:sensors{sensor_id}{"name"}
-            wellKnown_Tx = ent:sensors{"wellKnown_Tx"}
+            // wellKnown_Tx = ent:sensors{"wellKnown_Tx"}
             attrs = event:attrs
         }
         send_directive(attrs)
