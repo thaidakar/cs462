@@ -220,10 +220,10 @@ ruleset manage_sensors {
         }
     }
 
-    rule send_message {
+    rule send_threshold_notification {
         select when manager send_message
         pre {
-            message = event:attrs{"message"}
+            message = event:attrs{"message"}.klog("received...")
         }
         event:send({
             "eci": meta:eci,

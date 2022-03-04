@@ -26,9 +26,9 @@ ruleset new_ruleset_installed {
       event:send({
         "eci": connection{"Tx"},
         "eid": "violation",
-        "domain": "manage_sensors", "type": "send_message",
+        "domain": "manage_sensors", "type": "send_threshold_notification",
         "attrs": {
-          "message": temperature + " is too hot! (Recorded at " + timestamp + ")"
+          "message": temperature + " is too hot! (Recorded at " + timestamp + ")", "config": {}
         }
       })
     }
