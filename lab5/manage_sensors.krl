@@ -178,15 +178,15 @@ ruleset manage_sensors {
         select when manager subscribe
         pre {
             sensor_id = event:attrs{"sensor_id"}
-            eci = ent:sensors{sensor_id}{"eci"}
-            name = ent:sensors{sensor_id}{"name"}
+            eci = ent:sensors{sensor_id}{"eci"} || event:attrs{"eci"}
+            name = ent:sensors{sensor_id}{"name"} || event:attrs{"name"}
             wellKnown_Tx = event:attrs{"wellKnown_Tx"}
         }
         event:send({
             "eci": wellKnown_Tx,
             "domain": "wrangler", "name":"subscription",
             "attrs": {
-                "wellKnown_Tx": subs:wellKnown_Rx(){"id"},
+                "wellKnown_Tx": wellKnown_Tx,
                 "Rx_role": "manager", "Tx_role":"sensor",
                 "name":name+"-manager", "channel_type": "subscription",
                 "sensor_id": sensor_id
@@ -196,6 +196,14 @@ ruleset manage_sensors {
             ent:sensors{sensor_id} := {"eci": eci,"name": name,"wellKnown_Tx": wellKnown_Tx}
         }
     }
+
+    rule inbound_subscription {
+        select when wrangler inbound_pending_subscription_added
+        fired {
+            raise wrangler event "pending_subscription_approval"
+                attributes event:attrs
+        }
+      }
 
     rule successful_subscription {
         select when wrangler subscription_added

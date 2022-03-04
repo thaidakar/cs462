@@ -16,14 +16,6 @@ ruleset new_ruleset_installed {
         }
     }
 
-    rule inbound_subscription {
-      select when wrangler inbound_pending_subscription_added
-      fired {
-          raise wrangler event "pending_subscription_approval"
-              attributes event:attrs
-      }
-    }
-
     rule detect_wovyn_base_installed {
         select when wrangler ruleset_installed
           where event:attrs{"rids"} >< "wovyn_base"
