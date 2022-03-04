@@ -1,6 +1,7 @@
 ruleset manage_sensors {
     meta {
         use module io.picolabs.wrangler alias wrangler
+        use module io.picolabs.subscription alias subs
 
         shares getSensors, get_temps, get_profiles
     }
@@ -130,12 +131,14 @@ ruleset manage_sensors {
         pre {
             rule_name = event:attrs{"rule"}
             sensor_id = event:attrs{"sensor_id"}
+            wellKnown_Tx = event:attrs{"wellKnown_Tx"}
         }
         always {
             ent:complete{sensor_id} := ent:complete{sensor_id}.defaultsTo([]).append(rule_name)
 
             raise sensor event "handle_completed_sensor" attributes {
-                "sensor_id": sensor_id
+                "sensor_id": sensor_id,
+                "wellKnown_Tx": wellKnown_Tx
             } if ent:complete{sensor_id}.length() == 4
         }
     }
@@ -147,6 +150,7 @@ ruleset manage_sensors {
             sensor_id = event:attrs{"sensor_id"}
             eci = ent:sensors{sensor_id}{"eci"}
             name = ent:sensors{sensor_id}{"name"}
+            wellKnown_Tx = event:attrs{"wellKnown_Tx"}
         }
         if eci && name && sensor_id then event:send(
             {
@@ -162,6 +166,34 @@ ruleset manage_sensors {
                 }
             }
         )
+        fired {
+            raise manager event "subscribe" attributes {
+                "sensor_id": sensor_id,
+                "wellKnown_Tx": wellKnown_Tx
+            }
+        }
+    }
+
+    rule subscription_ruleset {
+        select when manager subscribe
+        pre {
+            sensor_id = event:attrs{"sensor_id"}
+            eci = ent:sensors{sensor_id}{"eci"}
+            name = ent:sensors{sensor_id}{"name"}
+            wellKnown_Tx = event:attrs{"wellKnown_Tx"}
+        }
+        event:send({
+            "eci": eci,
+            "domain": "wrangler", "name":"subscription",
+            "attrs": {
+                "wellKnown_Tx": wellKnown_Tx,
+                "Rx_role": "manager", "Tx_role":"sensor",
+                "name":name+"-manager", "channel_type": "subscription"
+            }
+        })
+        fired {
+            ent:sensors{sensor_id} := {"eci": eci,"name": name,"wellKnown_Tx": wellKnown_Tx}
+        }
     }
 
     rule initialize_sensors {

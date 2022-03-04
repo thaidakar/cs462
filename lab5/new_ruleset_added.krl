@@ -1,6 +1,6 @@
 ruleset new_ruleset_installed {
     meta {
-
+      use module io.picolabs.subscription alias subs
     }
 
     rule pico_created {
@@ -16,6 +16,15 @@ ruleset new_ruleset_installed {
         }
     }
 
+    rule inbound_subscription {
+      select when wrangler inbound_pending_subscription_added
+      fired {
+          raise wrangler event "pending_subscription_approval"
+              attributes event:attrs
+      }
+    }
+
+
     rule detect_wovyn_base_installed {
         select when wrangler ruleset_installed
           where event:attrs{"rids"} >< "wovyn_base"
@@ -28,6 +37,7 @@ ruleset new_ruleset_installed {
                 "attrs" : {
                     "rule": "wovyn_base",
                     "sensor_id": ent:sensor_id,
+                    "wellKnown_Tx": subs:wellKnown_Rx(){"id"},
                     "config" : {}
                 }
             }
@@ -46,6 +56,7 @@ ruleset new_ruleset_installed {
                 "attrs" : {
                     "rule": "io.picolabs.wovyn.emitter",
                     "sensor_id": ent:sensor_id,
+                    "wellKnown_Tx": subs:wellKnown_Rx(){"id"},
                     "config" : {}
                 }
             }
@@ -64,6 +75,7 @@ ruleset new_ruleset_installed {
                 "attrs" : {
                     "rule": "temperature_store",
                     "sensor_id": ent:sensor_id,
+                    "wellKnown_Tx": subs:wellKnown_Rx(){"id"},
                     "config" : {}
                 }
             }
@@ -82,6 +94,7 @@ ruleset new_ruleset_installed {
                 "attrs" : {
                     "rule": "profile_ruleset",
                     "sensor_id":ent:sensor_id,
+                    "wellKnown_Tx": subs:wellKnown_Rx(){"id"},
                     "config" : {}
                 }
             }
