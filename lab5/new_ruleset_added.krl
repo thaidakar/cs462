@@ -28,7 +28,7 @@ ruleset new_ruleset_installed {
         "eid": "violation",
         "domain": "manage_sensors", "type": "send_threshold_notification",
         "attrs": {
-          "message": temperature + " is too hot! (Recorded at " + timestamp + ")", "config": {}
+          "message": temperature + " is too hot! (Recorded from Sensor " + ent:sensor_id + " at " + timestamp + ")", "config": {}
         }
       })
     }
