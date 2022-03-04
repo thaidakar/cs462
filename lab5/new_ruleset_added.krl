@@ -21,12 +21,12 @@ ruleset new_ruleset_installed {
       foreach subs:established() setting (connection)
       pre {
         temperature = event:attrs{"temperature"}
-        timestamp = event:attrs{"timestamp"}
+        timestamp = event:attrs{"timestamp"}.klog("in detect_high_temps")
       }
       event:send({
         "eci": connection{"Tx"},
         "eid": "violation",
-        "domain": "manage_sensors", "type": "send_threshold_notification",
+        "domain": "manager", "type": "send_threshold_notification",
         "attrs": {
           "message": temperature + " is too hot! (Recorded from Sensor " + ent:sensor_id + " at " + timestamp + ")", "config": {}
         }
