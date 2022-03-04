@@ -183,7 +183,7 @@ ruleset manage_sensors {
             wellKnown_Tx = event:attrs{"wellKnown_Tx"}
         }
         event:send({
-            "eci": eci,
+            "eci": meta:eci,
             "domain": "wrangler", "name":"subscription",
             "attrs": {
                 "wellKnown_Tx": subs:wellKnown_Rx(){"id"},
