@@ -16,13 +16,6 @@ ruleset new_ruleset_installed {
         }
     }
 
-    /*
-                raise wovyn event "threshold_violation" attributes {
-                "temperature" : degrees,
-                "timestamp" : timestamp
-            } if voilation
-
-     */
     rule detect_high_temps {
       select when wovyn threshold_violation
       foreach subs:established() setting (connection)
