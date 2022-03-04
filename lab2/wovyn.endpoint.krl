@@ -39,19 +39,19 @@ ruleset wovyn_base {
         }
     }
 
-    rule threshold_notification {
-        select when wovyn threshold_violation
-        pre {
-            content = event:attrs.klog("attrs")
-            temperature = event:attrs{"temperature"}
-            message = "Temperature: " + temperature + " is too hot! (over " +  profile:threshold() + ")" 
-        }
-        send_directive("Sending message...")
-        fired {
-            raise twilio event "send_message" attributes {
-                "message" : message,
-                "toNum":  profile:sms()
-            }
-        }
-    }
+    // rule threshold_notification {
+    //     select when wovyn threshold_violation
+    //     pre {
+    //         content = event:attrs.klog("attrs")
+    //         temperature = event:attrs{"temperature"}
+    //         message = "Temperature: " + temperature + " is too hot! (over " +  profile:threshold() + ")" 
+    //     }
+    //     send_directive("Sending message...")
+    //     fired {
+    //         raise twilio event "send_message" attributes {
+    //             "message" : message,
+    //             "toNum":  profile:sms()
+    //         }
+    //     }
+    // }
   }
