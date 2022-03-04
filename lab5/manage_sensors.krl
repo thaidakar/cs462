@@ -225,13 +225,14 @@ ruleset manage_sensors {
         pre {
             message = event:attrs{"message"}
         }
-        send_directive("Sending message...")
-        fired {
-            raise twilio event "send_message" attributes {
+        event:send({
+            "eci": meta:eci,
+            "domain": "twilio", "name":"send_message",
+            "attrs": {
                 "message": message,
                 "toNum": ent:sms
             }
-        }
+        })
     }
 
     rule initialize_sensors {
