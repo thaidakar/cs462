@@ -24,7 +24,6 @@ ruleset new_ruleset_installed {
       }
     }
 
-
     rule detect_wovyn_base_installed {
         select when wrangler ruleset_installed
           where event:attrs{"rids"} >< "wovyn_base"

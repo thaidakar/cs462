@@ -188,12 +188,25 @@ ruleset manage_sensors {
             "attrs": {
                 "wellKnown_Tx": wellKnown_Tx,
                 "Rx_role": "manager", "Tx_role":"sensor",
-                "name":name+"-manager", "channel_type": "subscription"
+                "name":name+"-manager", "channel_type": "subscription",
+                "sensor_id": sensor_id
             }
         })
         fired {
             ent:sensors{sensor_id} := {"eci": eci,"name": name,"wellKnown_Tx": wellKnown_Tx}
         }
+    }
+
+    rule successful_subscription {
+        select when wrangler subscription_added
+        pre {
+            // eci = ent:sensors{sensor_id}{"eci"}
+            // name = ent:sensors{sensor_id}{"name"}
+            wellKnown_Tx = ent:sensors{"wellKnown_Tx"}
+            attrs = event:attrs
+        }
+        send_directive(attrs)
+
     }
 
     rule initialize_sensors {
