@@ -12,10 +12,14 @@ ruleset manage_sensors {
         }
 
         get_temps = function() {
-            subs:established().map(function(data) {
+            subs:established().filter(sensors_only).map(function(data) {
                 x = data.klog("data: ")
                 wrangler:picoQuery(data{"Tx"},"temperature_store","temperatures")
             })
+        }
+
+        sensors_only = function(established) {
+            established{"Rx_role"} == "sensor"
         }
 
         get_profiles = function() {
