@@ -221,7 +221,7 @@ ruleset manage_sensors {
     }
 
     rule send_threshold_notification {
-        select when manager send_message
+        select when manager send_threshold_notification
         pre {
             message = event:attrs{"message"}.klog("received...")
         }
