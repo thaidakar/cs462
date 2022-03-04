@@ -225,10 +225,11 @@ ruleset manage_sensors {
         pre {
             message = event:attrs{"message"}
         }
-        always {
+        send_directive("Sending message...")
+        fired {
             raise twilio event "send_message" attributes {
-                "message":message,
-                "toNum":ent:sms
+                "message": message,
+                "toNum": ent:sms
             }
         }
     }
