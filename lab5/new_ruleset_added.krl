@@ -21,7 +21,7 @@ ruleset new_ruleset_installed {
       foreach subs:established() setting (connection)
       pre {
         temperature = event:attrs{"temperature"}
-        timestamp = event:attrs{"timestamp"}.klog("in detect_high_temps")
+        timestamp = event:attrs{"timestamp"}
       }
       event:send({
         "eci": connection{"Tx"},

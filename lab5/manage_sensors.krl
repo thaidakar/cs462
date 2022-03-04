@@ -23,8 +23,8 @@ ruleset manage_sensors {
         }
 
         get_profiles = function() {
-            ent:sensors.map(function(data, sensor_id) {
-                wrangler:picoQuery(data{"eci"}, "profile_ruleset", "get_profile");
+            subs:established().filter(sensors_only).map(function(data) {
+                wrangler:picoQuery(data{"Tx"}, "profile_ruleset", "get_profile");
             })
         }
     }
@@ -223,7 +223,7 @@ ruleset manage_sensors {
     rule send_threshold_notification {
         select when manager send_threshold_notification
         pre {
-            message = event:attrs{"message"}.klog("received...")
+            message = event:attrs{"message"}
         }
         event:send({
             "eci": meta:eci,
