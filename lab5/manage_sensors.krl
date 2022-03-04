@@ -211,9 +211,8 @@ ruleset manage_sensors {
             // eci = ent:sensors{sensor_id}{"eci"}
             // name = ent:sensors{sensor_id}{"name"}
             // wellKnown_Tx = ent:sensors{"wellKnown_Tx"}
-            attrs = event:attrs
+            attrs = event:attrs.klog("attrs")
         }
-        send_directive(attrs)
 
     }
 
