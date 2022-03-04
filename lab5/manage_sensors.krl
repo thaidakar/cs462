@@ -12,8 +12,9 @@ ruleset manage_sensors {
         }
 
         get_temps = function() {
-            ent:sensors.map(function(data, sensor_id) {
-                wrangler:picoQuery(data{"eci"},"temperature_store","temperatures")
+            subs:established().map(function(data) {
+                x = data.klog("data: ")
+                wrangler:picoQuery(data{"Tx"},"temperature_store","temperatures")
             })
         }
 
@@ -187,7 +188,7 @@ ruleset manage_sensors {
             "domain": "wrangler", "name":"subscription",
             "attrs": {
                 "wellKnown_Tx": subs:wellKnown_Rx(){"id"},
-                "Rx_role": "sensor", "Tx_role":"manager",
+                "Rx_role": "manager", "Tx_role":"sensor",
                 "name":name+"-manager", "channel_type": "subscription",
                 "sensor_id": sensor_id
             }
