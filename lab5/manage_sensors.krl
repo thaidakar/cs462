@@ -187,7 +187,7 @@ ruleset manage_sensors {
             "domain": "wrangler", "name":"subscription",
             "attrs": {
                 "wellKnown_Tx": subs:wellKnown_Rx(){"id"},
-                "Rx_role": "manager", "Tx_role":"sensor",
+                "Rx_role": "sensor", "Tx_role":"manager",
                 "name":name+"-manager", "channel_type": "subscription",
                 "sensor_id": sensor_id
             }
