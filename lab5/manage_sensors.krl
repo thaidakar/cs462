@@ -208,17 +208,29 @@ ruleset manage_sensors {
             raise wrangler event "pending_subscription_approval"
                 attributes event:attrs
         }
-      }
+    }
 
-    rule successful_subscription {
-        select when wrangler subscription_added
+    rule store_sms {
+        select when manager store_sms
         pre {
-            // eci = ent:sensors{sensor_id}{"eci"}
-            // name = ent:sensors{sensor_id}{"name"}
-            // wellKnown_Tx = ent:sensors{"wellKnown_Tx"}
-            attrs = event:attrs.klog("attrs")
+            sms = event:attrs{"sms"}
         }
+        always {
+            ent:sms := sms.defaultsTo(ent:sms)
+        }
+    }
 
+    rule send_message {
+        select when manager send_message
+        pre {
+            message = event:attrs{"message"}
+        }
+        always {
+            raise twilio event "send_message" attributes {
+                "message":message,
+                "toNum":ent:sms
+            }
+        }
     }
 
     rule initialize_sensors {
@@ -228,6 +240,7 @@ ruleset manage_sensors {
             ent:complete := ent:complete.defaultsTo({})
             ent:default_threshold := ent:default_threshold.defaultsTo(76)
             ent:temperatures := ent:temperatures.defaultsTo({})
+            ent:sms := ent:sms.defaultsTo("+18323491263")
         }
     }
   }

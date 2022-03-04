@@ -16,6 +16,30 @@ ruleset new_ruleset_installed {
         }
     }
 
+    /*
+                raise wovyn event "threshold_violation" attributes {
+                "temperature" : degrees,
+                "timestamp" : timestamp
+            } if voilation
+
+     */
+    rule detect_high_temps {
+      select when wovyn threshold_violation
+      foreach subs:established() setting (connection)
+      pre {
+        temperature = event:attrs{"temperature"}
+        timestamp = event:attrs{"timestamp"}
+      }
+      event:send({
+        "eci": connection{"Tx"},
+        "eid": "violation",
+        "domain": "manage_sensors", "type": "send_message",
+        "attrs": {
+          "message": temperature + " is too hot! (Recorded at " + timestamp + ")"
+        }
+      })
+    }
+
     rule detect_wovyn_base_installed {
         select when wrangler ruleset_installed
           where event:attrs{"rids"} >< "wovyn_base"
