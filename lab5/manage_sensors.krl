@@ -281,8 +281,9 @@ ruleset manage_sensors {
         select when manager send_threshold_notification
         pre {
             message = event:attrs{"message"}
+            send = false // for my sanity while testing
         }
-        event:send({
+        if send then event:send({
             "eci": meta:eci,
             "domain": "twilio", "name":"send_message",
             "attrs": {
