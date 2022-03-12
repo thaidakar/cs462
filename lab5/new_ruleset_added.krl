@@ -3,6 +3,12 @@ ruleset new_ruleset_installed {
       use module io.picolabs.subscription alias subs
     }
 
+    global {
+      get_temperature = function() {
+        wrangler:picoQuery(meta:eci,"temperature_store","temperatures"){"current_temp"}
+      }
+    }
+
     rule pico_created {
         select when wrangler ruleset_installed
           where event:attrs{"rids"} >< meta:rid
@@ -14,6 +20,27 @@ ruleset new_ruleset_installed {
           ent:sensor_id := sensor_id.klog("sensor_id")
           ent:parent_eci := parent_eci.klog("parent_eci")
         }
+    }
+
+    rule generate_report {
+      select when report generate_report
+      pre {
+        correlation_id = event:attrs{"correlation_id"}.klog("correlation_id...")
+        response_channel = event:attrs{"response_channel"}.klog("response_channel...")
+        temperature = get_temperature().klog("temperature...")
+        identifier_channel = event:attrs{"identifier_channel"}.klog("identifier_channel...")
+      }
+      event:send(
+        {
+            "eci" : response_channel,
+            "eid" : "report_response",
+            "domain" : "report", "type": "report_response",
+            "attrs" : {
+                "correlation_id" : correlation_id,
+                "temperature" : temperature,
+                "identifier_channel" : identifier_channel
+            }
+        })
     }
 
     rule detect_high_temps {

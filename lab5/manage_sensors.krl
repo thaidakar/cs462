@@ -13,7 +13,6 @@ ruleset manage_sensors {
 
         get_temps = function() {
             subs:established().filter(sensors_only).map(function(data) {
-                x = data.klog("data: ")
                 wrangler:picoQuery(data{"Tx"},"temperature_store","temperatures")
             })
         }
@@ -27,6 +26,61 @@ ruleset manage_sensors {
                 wrangler:picoQuery(data{"Tx"}, "profile_ruleset", "get_profile");
             })
         }
+    }
+
+    rule scatter_report_event {
+        select when manager scatter_report_event
+        foreach subs:established().filter(sensors_only) setting (sensor)
+        pre {
+            channel = sensor{"Tx"};
+            correlation_id = ent:correlation_id.defaultsTo(0);
+        }
+        if channel then event:send(
+                {
+                    "eci" : channel,
+                    "eid" : "generate_report",
+                    "domain" : "report", "type": "generate_report",
+                    "attrs" : {
+                        "correlation_id" : correlation_id,
+                        "response_channel" : sensor{"Rx"},
+                        "identifier_channel" : channel
+                    }
+                })
+        fired {
+            ent:reports{correlation_id} := ent:reports{correlation_id}.defaultsTo({
+                "temperature_sensors": subs:established().filter(sensors_only).length(),
+                "responding" : 0,
+                "temperatures" : []
+            })
+
+            ent:correlation_id := ent:correlation_id + 1 on final
+        }
+    }
+
+    rule report_response {
+        select when report report_response
+        pre {
+            correlation_id = event:attrs{"correlation_id"}
+            temperature = event:attrs{"temperature"}
+            identifier_channel = event:attrs{"identifier_channel"} //TODO: could add ability to make sure duplicate reports aren't counted as additional reports
+            report = ent:reports{correlation_id}.klog("report...")
+            total_sensors = ent:reports{correlation_id}.klog("total_sensors...")
+            responding = ent:reports{[correlation_id, "responding"]}.klog("responding...")
+        }
+        if correlation_id && identifier_channel
+            then send_directive("Received report from " + identifier_channel)
+        fired {
+            ent:reports{[correlation_id, "responding"]} := responding + 1
+            ent:reports{[correlation_id, "temperatures"]} := ent:reports{[correlation_id, "temperatures"]}.append(temperature)
+        }
+    }
+
+    rule send_reports {
+        select when report send_reports
+        pre {
+            last_five = ent:reports.slice(0, 5);
+        }
+        send_directive(last_five)
     }
 
     rule handle_new_sensor {
