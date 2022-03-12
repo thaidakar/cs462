@@ -10,7 +10,7 @@ ruleset temperature_store {
         clear_temps = { }
 
         temperatures = function() {
-            ent:temperatures
+            ent:temperatures.klog("temperatures...")
         }
 
         threshold_violations = function() {
