@@ -54,7 +54,7 @@ ruleset manage_sensors {
                 "temperatures" : []
             })
 
-            ent:correlation_id := ent:correlation_id + 1 on final
+            ent:correlation_id := ent:correlation_id.defaultsTo(0) + 1 on final
         }
     }
 
@@ -127,6 +127,7 @@ ruleset manage_sensors {
             ent:sensors := {}
             ent:complete := {}
             ent:temperatures := {}
+            ent:reports := []
         }
     }
 
