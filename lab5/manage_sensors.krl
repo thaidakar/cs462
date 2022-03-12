@@ -79,7 +79,7 @@ ruleset manage_sensors {
     rule send_reports {
         select when report send_reports
         pre {
-            last_five = ent:reports.slice(0, 5);
+            last_five = ent:reports
         }
         send_directive(last_five)
     }
