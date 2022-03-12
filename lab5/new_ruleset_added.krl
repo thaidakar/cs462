@@ -2,7 +2,7 @@ ruleset new_ruleset_installed {
     meta {
       use module io.picolabs.subscription alias subs
       use module io.picolabs.wrangler alias wrangler
-      use module temperature_store alias temp
+      use module temperature_store alias temperature_store_module
     }
 
     global {
@@ -27,7 +27,7 @@ ruleset new_ruleset_installed {
       pre {
         correlation_id = event:attrs{"correlation_id"}.klog("correlation_id...")
         response_channel = event:attrs{"response_channel"}.klog("response_channel...")
-        temperature = temp:temperatures(){"current_temp"}.klog("temperature...")
+        temperature = temperature_store_module:temperatures(){"current_temp"}.klog("temperature...")
         identifier_channel = event:attrs{"identifier_channel"}.klog("identifier_channel...")
       }
       event:send(
