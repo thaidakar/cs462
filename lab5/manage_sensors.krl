@@ -61,9 +61,9 @@ ruleset manage_sensors {
     rule report_response {
         select when report report_response
         pre {
-            correlation_id = event:attrs{"correlation_id"}
-            temperature = event:attrs{"temperature"}
-            identifier_channel = event:attrs{"identifier_channel"} //TODO: could add ability to make sure duplicate reports aren't counted as additional reports
+            correlation_id = event:attrs{"correlation_id"}.klog("correlation_id...")
+            temperature = event:attrs{"temperature"}.klog("temperature...")
+            identifier_channel = event:attrs{"identifier_channel"}.klog("identifier_channel...") //TODO: could add ability to make sure duplicate reports aren't counted as additional reports
             report = ent:reports{correlation_id}.klog("report...")
             total_sensors = ent:reports{[correlation_id, "temperature_sensors"]}.klog("total_sensors...")
             responding = ent:reports{[correlation_id, "responding"]}.klog("responding...")
@@ -71,8 +71,8 @@ ruleset manage_sensors {
         if correlation_id && identifier_channel
             then send_directive("Received report from " + identifier_channel)
         fired {
-            ent:reports{[correlation_id, "responding"]} := responding.defaultsTo(0) + 1
-            ent:reports{[correlation_id, "temperatures"]} := ent:reports{[correlation_id, "temperatures"]}.defaultsTo([]).append(temperature)
+            ent:reports{[correlation_id, "responding"]} := responding + 1
+            ent:reports{[correlation_id, "temperatures"]} := ent:reports{[correlation_id, "temperatures"]}.append(temperature)
         }
     }
 
