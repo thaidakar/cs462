@@ -2,11 +2,12 @@ ruleset new_ruleset_installed {
     meta {
       use module io.picolabs.subscription alias subs
       use module io.picolabs.wrangler alias wrangler
-      use module temperature_store alias temperature_store_module
     }
 
     global {
-
+      temperature = function() {
+        wrangler:picoQuery(meta:eci,"temperature_store","temperatures").klog("temperatures...")
+      }
     }
 
     rule pico_created {
@@ -27,7 +28,7 @@ ruleset new_ruleset_installed {
       pre {
         correlation_id = event:attrs{"correlation_id"}.klog("correlation_id...")
         response_channel = event:attrs{"response_channel"}.klog("response_channel...")
-        temperature = temperature_store_module:temperatures(){"current_temp"}.klog("temperature...")
+        temperature = temperature(){"current_temp"}.klog("temperature...")
         identifier_channel = event:attrs{"identifier_channel"}.klog("identifier_channel...")
       }
       event:send(
