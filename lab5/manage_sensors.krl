@@ -65,7 +65,7 @@ ruleset manage_sensors {
             temperature = event:attrs{"temperature"}
             identifier_channel = event:attrs{"identifier_channel"} //TODO: could add ability to make sure duplicate reports aren't counted as additional reports
             report = ent:reports{correlation_id}.klog("report...")
-            total_sensors = ent:reports{correlation_id}.klog("total_sensors...")
+            total_sensors = ent:reports{[correlation_id, "temperature_sensors"]}.klog("total_sensors...")
             responding = ent:reports{[correlation_id, "responding"]}.klog("responding...")
         }
         if correlation_id && identifier_channel
