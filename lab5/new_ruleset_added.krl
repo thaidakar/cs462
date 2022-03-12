@@ -1,6 +1,7 @@
 ruleset new_ruleset_installed {
     meta {
       use module io.picolabs.subscription alias subs
+      use module io.picolabs.wrangler alias wrangler
     }
 
     global {
