@@ -69,7 +69,7 @@ ruleset manage_sensors {
             responding = ent:reports{[correlation_id, "responding"]}.klog("responding...")
         }
         if correlation_id && identifier_channel
-            then send_directive("Received report from " + identifier_channel)
+            then noop()
         fired {
             ent:reports{[correlation_id, "responding"]} := responding + 1
             ent:reports{[correlation_id, "temperatures"]} := ent:reports{[correlation_id, "temperatures"]}.append(temperature)
