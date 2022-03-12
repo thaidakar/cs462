@@ -39,7 +39,7 @@ ruleset temperature_store {
         pre {
             response_channel = event:attrs{"response_channel"}
             correlation_id = event:attrs{"correlation_id"}
-            temperature = ent:temperatures{"current_temp"}
+            temperature = ent:temperatures{"current_temp"}.klog("temperature...")
             identifier_channel = event:attrs{"identifier_channel"}
         }
         always {

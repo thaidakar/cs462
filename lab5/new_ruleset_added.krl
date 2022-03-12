@@ -42,7 +42,7 @@ ruleset new_ruleset_installed {
       pre {
         response_channel = event:attrs{"response_channel"}
         correlation_id = event:attrs{"correlation_id"}
-        temperature = event:attrs{"current_temp"}
+        temperature = event:attrs{"temperature"}
         identifier_channel = event:attrs{"identifier_channel"}
       }
       event:send(
