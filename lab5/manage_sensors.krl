@@ -128,6 +128,7 @@ ruleset manage_sensors {
             ent:complete := {}
             ent:temperatures := {}
             ent:reports := []
+            ent:correlation_id := 0
         }
     }
 
