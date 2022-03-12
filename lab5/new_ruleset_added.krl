@@ -5,9 +5,7 @@ ruleset new_ruleset_installed {
     }
 
     global {
-      temperature = function() {
-        wrangler:picoQuery(meta:eci,"temperature_store","temperatures").klog("temperatures...")
-      }
+
     }
 
     rule pico_created {
@@ -28,8 +26,24 @@ ruleset new_ruleset_installed {
       pre {
         correlation_id = event:attrs{"correlation_id"}.klog("correlation_id...")
         response_channel = event:attrs{"response_channel"}.klog("response_channel...")
-        temperature = temperature(){"current_temp"}.klog("temperature...")
         identifier_channel = event:attrs{"identifier_channel"}.klog("identifier_channel...")
+      }
+        always {
+          raise sensor event "current_temp" attributes {
+            "response_channel" : response_channel,
+            "correlation_id" : correlation_id,
+            "identifier_channel" : identifier_channel
+          }
+        }
+    }
+
+    rule send_report {
+      select when report notify_temperature
+      pre {
+        response_channel = event:attrs{"response_channel"}
+        correlation_id = event:attrs{"correlation_id"}
+        temperature = event:attrs{"current_temp"}
+        identifier_channel = event:attrs{"identifier_channel"}
       }
       event:send(
         {

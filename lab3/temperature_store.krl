@@ -34,6 +34,24 @@ ruleset temperature_store {
         }
     }
 
+    rule query_current_temp_internal {
+        select when sensor current_temp
+        pre {
+            response_channel = event:attrs{"response_channel"}
+            correlation_id = event:attrs{"correlation_id"}
+            temperature = ent:temperatures{"current_temp"}
+            identifier_channel = event:attrs{"identifier_channel"}
+        }
+        always {
+            raise report event "notify_temperature" attributes {
+                "response_channel" : response_channel,
+                "correlation_id" : correlation_id,
+                "temperature" : temperature,
+                "identifier_channel" : identifier_channel
+            }
+        }
+    }
+
     rule collect_temperatures {
         select when wovyn new_temperature_reading
         pre {
