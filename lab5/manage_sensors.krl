@@ -48,7 +48,7 @@ ruleset manage_sensors {
                 })
         fired {
             ent:reports := ent:reports.defaultsTo({})
-            ent:reports{correlation_id} := ent:reports{correlation_id}.defaultsTo(correlation_id,{
+            ent:reports{correlation_id} := ent:reports{correlation_id}.defaultsTo({
                 "temperature_sensors": subs:established().filter(sensors_only).length(),
                 "responding" : 0,
                 "temperatures" : []
