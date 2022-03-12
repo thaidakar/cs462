@@ -68,9 +68,7 @@ ruleset manage_sensors {
             total_sensors = ent:reports{[correlation_id, "temperature_sensors"]}.klog("total_sensors...")
             responding = ent:reports{[correlation_id, "responding"]}.klog("responding...")
         }
-        if correlation_id && identifier_channel
-            then noop()
-        fired {
+        always {
             ent:reports{[correlation_id, "responding"]} := responding + 1
             ent:reports{[correlation_id, "temperatures"]} := ent:reports{[correlation_id, "temperatures"]}.append(temperature)
         }
