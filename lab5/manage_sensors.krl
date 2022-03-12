@@ -67,10 +67,16 @@ ruleset manage_sensors {
             report = ent:reports{correlation_id}.klog("report...")
             total_sensors = ent:reports{[correlation_id, "temperature_sensors"]}.klog("total_sensors...")
             responding = ent:reports{[correlation_id, "responding"]}.klog("responding...")
+            not_final = total_sensors > responding + 1
         }
         always {
             ent:reports{[correlation_id, "responding"]} := responding + 1
             ent:reports{[correlation_id, "temperatures"]} := ent:reports{[correlation_id, "temperatures"]}.append(temperature)
+
+            schedule explicit event "report_timeout"
+                at time:add(time:now(), {"minutes": 5})
+                attributes {"correlation_id" : correlation_id}
+                if not_final
         }
     }
 
