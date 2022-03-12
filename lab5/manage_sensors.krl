@@ -47,7 +47,7 @@ ruleset manage_sensors {
                     }
                 })
         fired {
-            ent:reports := ent:reports.defaultsTo([])
+            ent:reports := ent:reports.defaultsTo({})
             ent:reports{correlation_id} := ent:reports{correlation_id}.defaultsTo(correlation_id,{
                 "temperature_sensors": subs:established().filter(sensors_only).length(),
                 "responding" : 0,
@@ -71,8 +71,8 @@ ruleset manage_sensors {
         if correlation_id && identifier_channel
             then send_directive("Received report from " + identifier_channel)
         fired {
-            ent:reports{[correlation_id, "responding"]} := responding + 1
-            ent:reports{[correlation_id, "temperatures"]} := ent:reports{[correlation_id, "temperatures"]}.append(temperature)
+            ent:reports{[correlation_id, "responding"]} := responding.defaultsTo(0) + 1
+            ent:reports{[correlation_id, "temperatures"]} := ent:reports{[correlation_id, "temperatures"]}.defaultsTo([]).append(temperature)
         }
     }
 
@@ -127,7 +127,7 @@ ruleset manage_sensors {
             ent:sensors := {}
             ent:complete := {}
             ent:temperatures := {}
-            ent:reports := []
+            ent:reports := {}
             ent:correlation_id := 0
         }
     }
