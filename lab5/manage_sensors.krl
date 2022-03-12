@@ -73,10 +73,24 @@ ruleset manage_sensors {
             ent:reports{[correlation_id, "responding"]} := responding + 1
             ent:reports{[correlation_id, "temperatures"]} := ent:reports{[correlation_id, "temperatures"]}.append(temperature)
 
-            schedule explicit event "report_timeout"
+            schedule report event "report_timeout"
                 at time:add(time:now(), {"minutes": 5})
                 attributes {"correlation_id" : correlation_id}
                 if not_final
+        }
+    }
+
+    rule report_timeout
+    {
+        select when report report_timeout
+        pre {
+            correlation_id = event:attrs{"correlation_id"}
+            complete = false//TODO: determine if still not complete
+        }
+        if complete 
+            then send_directive("Event with correlation_id " + correlation_id + " timed out") 
+        always {
+            //Deal with it
         }
     }
 
