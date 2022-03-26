@@ -115,16 +115,16 @@ ruleset gossip_protocol {
     //     }
     // }
 
-    rule set_gossip_period {
-        select when debug gossip_period
-        pre {
-            span = event:attrs{"span"} || 15
-        }
-        always {
-            schedule gossip event "heartbeat" repeat
-                << */#{span} * * * * * >>
-        }
-    }
+    // rule set_gossip_period {
+    //     select when debug gossip_period
+    //     pre {
+    //         span = event:attrs{"span"} || 15
+    //     }
+    //     always {
+    //         schedule gossip event "heartbeat" repeat
+    //             << */#{span} * * * * * >>
+    //     }
+    // }
 
     rule collect_recent_temperature {
         select when wovyn new_temperature_reading
