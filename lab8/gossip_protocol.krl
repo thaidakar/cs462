@@ -29,12 +29,12 @@ ruleset gossip_protocol {
         }
 
         find_missing_versions = function (similar_keys, known_logs, received_logs) {
-            known_logs.values(similar_keys).intersection(received_logs.values(similar_keys))
+            known_logs.values(similar_keys).intersection(received_logs.values(similar_keys)).klog("intersection of find_missing_versions")
         }
 
         find_missing = function(known_logs, received_logs) {
             missing_messages = known_logs.keys().difference(received_logs.keys())
-            missing_versions = find_missing_versions(known_logs.keys().intersection(received_logs.keys()), known_logs, received_logs)
+            missing_versions = find_missing_versions(known_logs.keys().intersection(received_logs.keys()).klog("intersection of known keys and received keys"), known_logs, received_logs)
             missing_messages.union(missing_versions)
         }
 
