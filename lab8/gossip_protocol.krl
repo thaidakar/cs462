@@ -60,8 +60,8 @@ ruleset gossip_protocol {
             }
         })
         fired {
-            ent:sequence_num := ent:sequence_num + 1
             ent:peer_logs{[Peer, SensorID]} := ent:sequence_num
+            ent:sequence_num := ent:sequence_num + 1            
         }
     }
 
