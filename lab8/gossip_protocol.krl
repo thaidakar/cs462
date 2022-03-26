@@ -79,7 +79,7 @@ ruleset gossip_protocol {
         select when gossip reset
         foreach ent:peer_connections setting (peer)
         always {
-            ent:peer_logs{peer{"ID"}} := {}
+            ent:peer_logs{peer{"ID"}} := -1
         }
     }
 
@@ -102,6 +102,25 @@ ruleset gossip_protocol {
             ent:temperature := passed_temp
         }
     }
+
+    rule process_heartbeat {
+        select when wovyn heartbeat
+  
+        pre {
+          genericThing = event:attrs{"genericThing"}
+          data = genericThing{"data"}
+          temperature = data{"temperature"}
+          degrees = temperature[0]{"temperatureF"}
+        }
+  
+        fired {        
+          raise wovyn event "new_temperature_reading" attributes {
+              "temperature" : degrees,
+              "timestamp" : time:now()
+          } if genericThing != null
+        }
+      }
+  
 
     rule initialize_sensors {
         select when wrangler ruleset_installed where event:attrs{"rids"} >< meta:rid
