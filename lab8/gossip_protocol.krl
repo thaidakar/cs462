@@ -1,6 +1,6 @@
 ruleset gossip_protocol {
     meta {
-        shares get_peer_logs, get_seen_messages, get_connections
+        shares get_peer_logs, get_seen_messages, get_connections, parse_message
     }
 
     global {
@@ -20,8 +20,47 @@ ruleset gossip_protocol {
             ent:peer_connections
         }
 
-        parse_sequence_num = function(MessageID) {
-            MessageID.split(":")[1]
+        parse_message = function(MessageID, part) {
+            MessageID.split(":")[part]
+        }
+    }
+
+    rule handle_rumor {
+        select when gossip rumor 
+        pre {
+            Message = event:attrs{"Message"}.klog("Message...")
+            message_id_full = Message{"MessageID"}
+            message_id = parse_message(message_id_full, 0)
+            sequence_num = parse_message(message_id_full, 1)
+            sensor_id = Message{"SensorID"}
+            next_message_in_sequence = ent:peer_logs{sensor_id}.defaultsTo(-1) + 1 == sequence_num
+            new_message = ent:stored_messages{[sensor_id, "MessageID"]} >< message_id_full
+        }
+        always {
+            ent:stored_messages{sensor_id} := ent:stored_messages{sensor_id}.defaultsTo([]).append(Message) if new_message
+            ent:peer_logs{sensor_id} := sequence_num if next_message_in_sequence
+        }
+    }
+
+    rule handle_heartbeat {
+        select when gossip create_message
+        pre {
+            Peer = event:attrs{"Tx"}
+            MessageID = get_unique_message_id() + ":" + ent:sequence_num
+            SensorID = ent:sensor_id
+            Temperature = ent:temperature
+            Timestamp = ent:timestamp
+            Message = {}.put("MessageID", MessageID).put("SensorID", SensorID).put("Temperature", Temperature).put("Timestamp", Timestamp)
+        }
+        event:send({
+            "eci": Peer,
+            "domain": "gossip", "name":"rumor",
+            "attrs": {
+                "Message": Message
+            }
+        })
+        fired {
+            ent:sequence_num := ent:sequence_num + 1
         }
     }
 
@@ -48,6 +87,7 @@ ruleset gossip_protocol {
         select when gossip reset
         always {
             ent:stored_messages := {}
+            ent:sequence_num := 0
         }
     }
 
@@ -67,6 +107,7 @@ ruleset gossip_protocol {
         select when wrangler ruleset_installed where event:attrs{"rids"} >< meta:rid
         fired {
             ent:sensor_id := meta:eci
+            ent:sequence_num := 0
         }
     }
 }
