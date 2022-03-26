@@ -93,7 +93,7 @@ ruleset gossip_protocol {
 
     rule handle_rumors {
         select when gossip rumors
-        foreach event:attr{"Messages"} setting (message)
+        foreach event:attrs{"Messages"} setting (message)
         always {
             raise gossip event "rumor" attributes {
                 "Message": message
