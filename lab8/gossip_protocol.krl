@@ -1,6 +1,6 @@
 ruleset gossip_protocol {
     meta {
-        shares get_peer_logs, get_seen_messages, get_connections, get_scheduled_events
+        shares get_peer_logs, get_seen_messages, get_connections, get_scheduled_events, remove_scheduled_event
     }
 
     global {
@@ -8,8 +8,8 @@ ruleset gossip_protocol {
             schedule:list()
         }
 
-        get_unique_message_id = function() {
-            random:uuid()
+        remove_scheduled_event = function(id) {
+            schedule:remove(id)
         }
 
         get_peer_logs = function() {
@@ -27,6 +27,40 @@ ruleset gossip_protocol {
         parse_message = function(MessageID, part) {
             MessageID.split(":")[part]
         }
+
+        find_missing = function(known_logs, received_logs) {
+            known_logs.difference(received_logs)
+        }
+    }
+
+    rule handle_seen {
+        select when gossip seen
+        pre {
+            received_logs = event:attrs{"logs"}
+            missing_messages = find_missing(ent:peer_logs{ent:sensor_id}, received_logs).klog("Missing messages...")
+        }
+        always {
+            raise gossip event "handle_missing" attributes {
+                "messages" : missing_messages
+            } if missing_messages.length() > 0
+        }
+    }
+
+    
+    rule send_seen {
+        select when gossip send_seen
+        pre {
+            Peer_ID = event:attrs{"Id"}
+            Peer_TX = get_connections(){[Peer_ID, "Tx"]}
+            logs_to_send = ent:peer_logs{ent:sensor_id}.klog("Sending known logs...")
+        }
+        event:send({
+            "eci": Peer_TX,
+            "domain": "gossip", "name":"seen",
+            "attrs": {
+                "logs": logs_to_send
+            }
+        })
     }
 
     rule handle_rumor {
@@ -38,7 +72,7 @@ ruleset gossip_protocol {
             sequence_num = parse_message(message_id_full, 1)
             sensor_id = Message{"SensorID"}
             next_message_in_sequence = (ent:peer_logs{[sensor_id, sensor_id]}.defaultsTo(-1) + 1) == sequence_num.as("Number")
-            known_message = ent:stored_messages{[sensor_id, "MessageID"]} >< message_id_full
+            known_message = ent:stored_messages{[sensor_id, "MessageID"]} >< message_id_full && (ent:peer_logs{[sensor_id, sensor_id]}.defaultsTo(-1)) >= sequence_num.as("Number")
         }
         always {
             ent:stored_messages{sensor_id} := ent:stored_messages{sensor_id}.defaultsTo([]).append(Message) if not known_message
@@ -49,6 +83,8 @@ ruleset gossip_protocol {
     rule catch_heartbeat {
         select when gossip heartbeat
         send_directive("Heartbeat event received")
+
+        //TODO: Pick someone to send it to and send it to them
     }
 
     rule handle_heartbeat {
@@ -56,7 +92,7 @@ ruleset gossip_protocol {
         pre {
             Peer_ID = event:attrs{"Id"}
             Peer_TX = get_connections(){[Peer_ID, "Tx"]}
-            MessageID = get_unique_message_id() + ":" + ent:sequence_num
+            MessageID = ent:sensor_id + ":" + ent:sequence_num
             SensorID = ent:sensor_id
             Temperature = ent:temperature
             Timestamp = ent:timestamp
@@ -88,16 +124,6 @@ ruleset gossip_protocol {
         }
     }
 
-    rule reset_scheduled {
-        select when gossip reset 
-        pre {
-            id = event:attrs{"id"}
-        }
-        always {
-            x = schedule:remove(id)
-        }
-    }
-
     rule reset_gossip {
         select when gossip reset
         foreach ent:peer_connections setting (peer)
@@ -108,9 +134,6 @@ ruleset gossip_protocol {
 
     rule reset_stored {
         select when gossip reset
-        pre {
-            scheduled_events = schedule:list()
-        }
         always {
             ent:stored_messages := {}
             ent:sequence_num := 0
