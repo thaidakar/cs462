@@ -28,18 +28,23 @@ ruleset gossip_protocol {
     rule handle_rumor {
         select when gossip rumor 
         pre {
-            Message = event:attrs{"Message"}.klog("Message...")
+            Message = event:attrs{"Message"}
             message_id_full = Message{"MessageID"}
             message_id = parse_message(message_id_full, 0)
             sequence_num = parse_message(message_id_full, 1)
             sensor_id = Message{"SensorID"}
-            next_message_in_sequence = (ent:peer_logs{[sensor_id, sensor_id]}.defaultsTo(-1) + 1)== sequence_num.as("Number")
+            next_message_in_sequence = (ent:peer_logs{[sensor_id, sensor_id]}.defaultsTo(-1) + 1) == sequence_num.as("Number")
             known_message = ent:stored_messages{[sensor_id, "MessageID"]} >< message_id_full
         }
         always {
             ent:stored_messages{sensor_id} := ent:stored_messages{sensor_id}.defaultsTo([]).append(Message) if not known_message
             ent:peer_logs{[sensor_id, sensor_id]} := (ent:peer_logs{[sensor_id, sensor_id]}.defaultsTo(-1) + 1) if next_message_in_sequence
         }
+    }
+
+    rule catch_heartbeat {
+        select when gossip heartbeat
+        send_directive("Heartbeat event received")
     }
 
     rule handle_heartbeat {
@@ -62,6 +67,7 @@ ruleset gossip_protocol {
         })
         fired {
             ent:peer_logs{[Peer_ID, ent:sensor_id]} := ent:sequence_num
+            ent:peer_logs{[ent:sensor_id, ent:sensor_id]} := ent:sensor_id
             ent:sequence_num := ent:sequence_num + 1
             ent:stored_messages{ent:sensor_id} := ent:stored_messages{ent:sensor_id}.defaultsTo([]).append(Message)
         }
@@ -91,6 +97,17 @@ ruleset gossip_protocol {
         always {
             ent:stored_messages := {}
             ent:sequence_num := 0
+        }
+    }
+
+    rule schedule_gossip {
+        select when gossip scheduler
+        pre {
+            period = event:attrs{"period"} || 10
+        }
+        always {
+            schedule gossip event "heartbeat"
+                repeat << */#{period} * * * * * >>
         }
     }
 
