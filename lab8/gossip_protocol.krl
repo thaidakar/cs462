@@ -222,7 +222,7 @@ ruleset gossip_protocol {
     rule schedule_seen_collection {
         select when gossip schedule_seen
         pre {
-            seen_period = event:attrs{"period"} || 11
+            seen_period = event:attrs{"period"} || 15
         }
         always {
             schedule gossip event "send_seen_query"
@@ -266,6 +266,8 @@ ruleset gossip_protocol {
         fired {
             ent:sensor_id := meta:eci
             ent:sequence_num := 0
+
+            raise gossip event "schedule_seen"
         }
     }
 }
