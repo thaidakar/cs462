@@ -186,15 +186,29 @@ ruleset gossip_protocol {
         }
     }
 
+    rule send_seen_query {
+        select when gossip send_seen_query
+        foreach get_connections().keys() setting (id)
+        always {
+            raise gossip event "send_seen" attributes {
+                "Id" : id
+            }
+        }
+    }
+
     rule schedule_gossip {
         select when gossip scheduler
         pre {
-            period = event:attrs{"period"} || 10
+            heartbeat_period = event:attrs{"period"} || 10
+            seen_period = heartbeat_period + 1
         }
         always {
             schedule gossip event "heartbeat"
-                repeat << */#{period} * * * * * >>
-        }
+                repeat << */#{heartbeat_period} * * * * * >>
+        
+            schedule gossip event "send_seen_query"
+                repeat << */#{seen_period} * * * * * >>
+            }
     }
 
     rule collect_recent_temperature {
