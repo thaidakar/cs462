@@ -11,8 +11,9 @@ ruleset gossip_protocol {
 
     rule reset_gossip {
         select when gossip reset
+        foreach subs:established() setting (peer)
         always {
-            ent:peer_logs := {}
+            ent:peer_logs{peer{"Tx"}} := []
             ent:stored_messages := {}
         }
     }
