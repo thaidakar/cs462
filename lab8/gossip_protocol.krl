@@ -66,7 +66,7 @@ ruleset gossip_protocol {
         select when gossip handle_missing 
         pre {
             messages = event:attrs{"messages"}
-            sensor_ids = messages.map(get_sensor_id).klog("sensor_ids...")
+            sensor_ids = messages.klog("sensor_ids...")
             Messages = get_needed_messages(sensor_ids).klog("Needed messages...")
             from_id = event:attrs{"from"}
             should_send = messages != null && messages.length() > 0 && messages[0] != null
