@@ -104,7 +104,7 @@ ruleset gossip_protocol {
         always {
             ent:stored_messages := {}
             ent:sequence_num := 0
-            x = remove_any_scheduled_events(scheduled_events[0]{"id"}) if scheduled_events.length() > 0
+            x = remove_any_scheduled_events(scheduled_events{[0, "id"]}) if scheduled_events.length() > 0
         }
     }
 
