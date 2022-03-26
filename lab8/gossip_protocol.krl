@@ -13,6 +13,10 @@ ruleset gossip_protocol {
         get_peer_logs = function() {
             ent:peer_logs
         }
+
+        parse_sequence_num = function(MessageID) {
+            MessageID.split(":")[1]
+        }
     }
 
     rule reset_gossip {
