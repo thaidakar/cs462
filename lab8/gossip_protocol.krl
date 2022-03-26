@@ -33,7 +33,7 @@ ruleset gossip_protocol {
             message_id = parse_message(message_id_full, 0)
             sequence_num = parse_message(message_id_full, 1)
             sensor_id = Message{"SensorID"}
-            next_message_in_sequence = (ent:peer_logs{sensor_id} + 1) == sequence_num.as("Number")
+            next_message_in_sequence = (ent:peer_logs{sensor_id} + 1).klog("peer_logs(sensor_id) + 1 =") == sequence_num.as("Number").klog("sequence_num as number")
             known_message = ent:stored_messages{[sensor_id, "MessageID"]} >< message_id_full
         }
         always {
