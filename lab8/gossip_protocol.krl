@@ -99,10 +99,10 @@ ruleset gossip_protocol {
 
     rule handle_rumors {
         select when gossip rumors
-        foreach event:attrs{"Messages"} setting (message)
+        foreach event:attrs{"Messages"}.keys() setting (message)
         always {
             raise gossip event "rumor" attributes {
-                "Message": message[0]
+                "Message": message.klog("RECEIVED MESSAGE...")
             }
         }
     }
