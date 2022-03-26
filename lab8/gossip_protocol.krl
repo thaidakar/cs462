@@ -33,7 +33,7 @@ ruleset gossip_protocol {
         }
 
         find_missing_versions = function (similar_keys, known_logs, received_logs) {
-            similar_keys.get_difference(known_logs, received_logs).klog("PLEASE???")
+            similar_keys.filter(get_difference(known_logs, received_logs)).klog("please???")
         }
 
         find_missing = function(known_logs, received_logs) {
