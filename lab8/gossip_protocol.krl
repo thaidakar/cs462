@@ -45,7 +45,8 @@ ruleset gossip_protocol {
     rule handle_heartbeat {
         select when gossip create_message
         pre {
-            Peer = event:attrs{"Tx"}
+            Peer_ID = event:attrs{"Id"}
+            Peer_TX = get_connections(){[Peer_ID, "Tx"]}
             MessageID = get_unique_message_id() + ":" + ent:sequence_num
             SensorID = ent:sensor_id
             Temperature = ent:temperature
@@ -53,14 +54,14 @@ ruleset gossip_protocol {
             Message = {}.put("MessageID", MessageID).put("SensorID", SensorID).put("Temperature", Temperature).put("Timestamp", Timestamp)
         }
         event:send({
-            "eci": Peer,
+            "eci": Peer_TX,
             "domain": "gossip", "name":"rumor",
             "attrs": {
                 "Message": Message
             }
         })
         fired {
-            ent:peer_logs{[Peer, SensorID]} := ent:sequence_num
+            ent:peer_logs{[Peer_ID, ent:sensor_id]} := ent:sequence_num
             ent:sequence_num := ent:sequence_num + 1            
         }
     }
