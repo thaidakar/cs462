@@ -77,6 +77,7 @@ ruleset gossip_protocol {
         always {
             ent:stored_messages{sensor_id} := ent:stored_messages{sensor_id}.defaultsTo([]).append(Message) if not known_message
             ent:peer_logs{[sensor_id, sensor_id]} := (ent:peer_logs{[sensor_id, sensor_id]}.defaultsTo(-1) + 1) if next_message_in_sequence
+            ent:peer_logs{[ent:sensor_id, sensor_id]} := (ent:peer_logs{[sensor_id, sensor_id]}.defaultsTo(-1) + 1) if next_message_in_sequence
         }
     }
 
@@ -192,9 +193,16 @@ ruleset gossip_protocol {
 }
 
 //1
-//cl1778cic00cd1sbz9eulb8is id
+//cl1778cic00cd1sbz9eulb8is id (2)
 //cl177f6uq00nh1sbzbgwcbf02 tx
 
 //2
-//cl1778ada00bg1sbz2hux0l7p id
+//cl1778ada00bg1sbz2hux0l7p id (1)
 //cl177f6uu00nj1sbz0r22dij6 tx
+
+//cl1778e8700dh1sbzah2zgqtv id (3)
+//cl177fzsz00ri1sbz8fs3gywf
+
+//3
+//cl1778cic00cd1sbz9eulb8is id (2)
+//cl177fzsv00rf1sbz7rro90co tx
