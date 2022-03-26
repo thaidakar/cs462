@@ -89,6 +89,7 @@ ruleset gossip_protocol {
         always {
             ent:stored_messages := {}
             ent:sequence_num := 0
+            ent:peer_logs{[ent:sensor_id, ent:sensor_id]} := -1
         }
     }
 
