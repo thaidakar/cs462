@@ -1,6 +1,6 @@
 ruleset gossip_protocol {
     meta {
-        shares get_peer_logs, get_seen_messages, get_connections
+        shares get_peer_logs, get_seen_messages, get_connections, get_scheduled_events
     }
 
     global {
