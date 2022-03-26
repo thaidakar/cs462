@@ -125,17 +125,18 @@ ruleset gossip_protocol {
         }
     }
 
-    rule reset_gossip {
-        select when gossip reset
+    rule initialize_gossip {
+        select when gossip initialize
         foreach ent:peer_connections setting (peer)
         always {
             ent:peer_logs{peer{"ID"}} := {}
         }
     }
 
-    rule reset_stored {
-        select when gossip reset
+    rule nuke_gossip {
+        select when gossip nuke
         always {
+            ent:peer_logs := {}
             ent:stored_messages := {}
             ent:sequence_num := 0
         }
