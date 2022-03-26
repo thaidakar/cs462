@@ -31,21 +31,48 @@ ruleset gossip_protocol {
         find_missing = function(known_logs, received_logs) {
             known_logs.difference(received_logs)
         }
+
+        get_sensor_id = function(log) {
+            log.keys()[0]
+        }
+
+        get_needed_messages = function(sensor_id) {
+            ent:stored_messages{sensor_id}
+        }
     }
 
     rule handle_seen {
         select when gossip seen
         pre {
             received_logs = event:attrs{"logs"}
-            missing_messages = find_missing(ent:peer_logs{ent:sensor_id}, received_logs).klog("Missing messages...")
+            from_id = event:attrs{"from"}
+            missing_messages = find_missing(ent:peer_logs{ent:sensor_id}.klog("Known logs..."), received_logs.klog("received logs...")).klog("Missing messages...")
         }
         always {
             raise gossip event "handle_missing" attributes {
-                "messages" : missing_messages
+                "messages" : missing_messages,
+                "from" : from_id
             } if missing_messages.length() > 0
         }
     }
 
+    rule handle_missing {
+        select when gossip handle_missing 
+        pre {
+            messages = event:attrs{"messages"}
+            sensor_ids = messages.map(get_sensor_id).klog("sensor_ids...")
+            Messages = get_needed_messages(sensor_ids).klog("Needed messages...")
+            from_id = event:attrs{"from"}
+            should_send = messages != null && messages.length() > 0 && messages[0] != null
+        }
+        if should_send then event:send({
+            "eci": get_connections(){[from_id, "Tx"]},
+            "domain": "gossip", "name":"rumors",
+            "attrs": {
+                "Messages": Messages,
+            }
+        })
+    }
     
     rule send_seen {
         select when gossip send_seen
@@ -58,9 +85,20 @@ ruleset gossip_protocol {
             "eci": Peer_TX,
             "domain": "gossip", "name":"seen",
             "attrs": {
-                "logs": logs_to_send
+                "logs": logs_to_send,
+                "from": ent:sensor_id
             }
         })
+    }
+
+    rule handle_rumors {
+        select when gossip rumors
+        foreach event:attr{"Messages"} setting (message)
+        always {
+            raise gossip event "rumor" attributes {
+                "Message": message
+            }
+        }
     }
 
     rule handle_rumor {
