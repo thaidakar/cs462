@@ -80,7 +80,7 @@ ruleset gossip_protocol {
         select when gossip reset
         foreach ent:peer_connections setting (peer)
         always {
-            ent:peer_logs{peer{"ID"}} := -1
+            ent:peer_logs{[ent:sensor_id, peer{"ID"}]} := -1
         }
     }
 
