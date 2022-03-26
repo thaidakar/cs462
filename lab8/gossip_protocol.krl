@@ -77,7 +77,7 @@ ruleset gossip_protocol {
         always {
             ent:stored_messages{sensor_id} := ent:stored_messages{sensor_id}.defaultsTo([]).append(Message) if not known_message
             ent:peer_logs{[sensor_id, sensor_id]} := (ent:peer_logs{[sensor_id, sensor_id]}.defaultsTo(-1) + 1) if next_message_in_sequence
-            ent:peer_logs{[ent:sensor_id, sensor_id]} := (ent:peer_logs{[sensor_id, sensor_id]}.defaultsTo(-1) + 1) if next_message_in_sequence
+            ent:peer_logs{[ent:sensor_id, sensor_id]} := (ent:peer_logs{[ent:sensor_id, sensor_id]}.defaultsTo(-1) + 1) if next_message_in_sequence
         }
     }
 
