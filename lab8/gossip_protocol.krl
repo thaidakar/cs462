@@ -23,6 +23,11 @@ ruleset gossip_protocol {
         parse_message = function(MessageID, part) {
             MessageID.split(":")[part]
         }
+
+        remove_any_scheduled_events = function() {
+            event = schedule:list()[0]
+            schedule:remove(event{"id"})
+        }
     }
 
     rule handle_rumor {
@@ -97,6 +102,7 @@ ruleset gossip_protocol {
         always {
             ent:stored_messages := {}
             ent:sequence_num := 0
+            x = remove_any_scheduled_events()
         }
     }
 
