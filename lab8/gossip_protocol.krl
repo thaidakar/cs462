@@ -200,15 +200,22 @@ ruleset gossip_protocol {
         select when gossip scheduler
         pre {
             heartbeat_period = event:attrs{"period"} || 10
-            seen_period = heartbeat_period + 1
         }
         always {
             schedule gossip event "heartbeat"
                 repeat << */#{heartbeat_period} * * * * * >>
-        
+        }
+    }
+
+    rule schedule_seen_collection {
+        select when gossip schedule_seen
+        pre {
+            seen_period = event:attrs{"period"} || 11
+        }
+        always {
             schedule gossip event "send_seen_query"
                 repeat << */#{seen_period} * * * * * >>
-            }
+        }
     }
 
     rule collect_recent_temperature {
