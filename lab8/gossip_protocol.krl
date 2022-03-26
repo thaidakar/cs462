@@ -1,11 +1,17 @@
 ruleset gossip_protocol {
     meta {
         use module io.picolabs.subscription alias subs
+
+        shares get_peer_logs
     }
 
     global {
         get_unique_message_id = function() {
             random:uuid()
+        }
+
+        get_peer_logs = function() {
+            ent:peer_logs
         }
     }
 
