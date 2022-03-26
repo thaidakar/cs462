@@ -24,9 +24,8 @@ ruleset gossip_protocol {
             MessageID.split(":")[part]
         }
 
-        remove_any_scheduled_events = function() {
-            event = schedule:list()[0]
-            schedule:remove(event{"id"})
+        remove_any_scheduled_events = function(event) {
+            schedule:remove(event)
         }
     }
 
@@ -99,10 +98,13 @@ ruleset gossip_protocol {
 
     rule reset_stored {
         select when gossip reset
+        pre {
+            scheduled_events = schedule:list()
+        }
         always {
             ent:stored_messages := {}
             ent:sequence_num := 0
-            x = remove_any_scheduled_events()
+            x = remove_any_scheduled_events(scheduled_events[0]{"id"}) if scheduled_events.length() > 0
         }
     }
 
