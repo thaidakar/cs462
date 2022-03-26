@@ -96,7 +96,7 @@ ruleset gossip_protocol {
         foreach event:attrs{"Messages"} setting (message)
         always {
             raise gossip event "rumor" attributes {
-                "Message": message
+                "Message": message.klog("HERE...")
             }
         }
     }
