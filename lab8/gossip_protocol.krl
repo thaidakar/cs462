@@ -1,8 +1,6 @@
 ruleset gossip_protocol {
     meta {
-        use module io.picolabs.subscription alias subs
-
-        shares get_peer_logs
+        shares get_peer_logs, get_seen_messages, get_connections
     }
 
     global {
@@ -14,16 +12,41 @@ ruleset gossip_protocol {
             ent:peer_logs
         }
 
+        get_seen_messages = function() {
+            ent:stored_messages
+        }
+
+        get_connections = function() {
+            ent:peer_connections
+        }
+
         parse_sequence_num = function(MessageID) {
             MessageID.split(":")[1]
         }
     }
 
+    rule add_peer {
+        select when gossip add_peer
+        pre {
+            ID = event:attrs{"ID"}
+            Tx = event:attrs{"Tx"}
+        }
+        always {
+            ent:peer_connections{ID} := {}.put("ID", ID).put("Tx", Tx)
+        }
+    }
+
     rule reset_gossip {
         select when gossip reset
-        foreach subs:established() setting (peer)
+        foreach ent:peer_connections setting (peer)
         always {
-            ent:peer_logs{peer{"Tx"}} := []
+            ent:peer_logs{peer{"ID"}} := {}
+        }
+    }
+
+    rule reset_stored {
+        select when gossip reset
+        always {
             ent:stored_messages := {}
         }
     }
@@ -37,6 +60,13 @@ ruleset gossip_protocol {
         always {
             ent:timestamp := passed_timestamp
             ent:temperature := passed_temp
+        }
+    }
+
+    rule initialize_sensors {
+        select when wrangler ruleset_installed where event:attrs{"rids"} >< meta:rid
+        fired {
+            ent:sensor_id := meta:eci
         }
     }
 }
