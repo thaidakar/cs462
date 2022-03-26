@@ -28,8 +28,14 @@ ruleset gossip_protocol {
             MessageID.split(":")[part]
         }
 
+        find_missing_versions = function (similar_keys, known_logs, received_logs) {
+            known_logs.values(similar_keys).intersection(received_logs.values(similar_keys))
+        }
+
         find_missing = function(known_logs, received_logs) {
-            known_logs.difference(received_logs)
+            missing_messages = known_logs.keys().difference(received_logs.keys())
+            missing_versions = find_missing_versions(known_logs.keys().intersection(received_logs.keys()), known_logs, received_logs)
+            missing_messages.union(missing_versions)
         }
 
         get_sensor_id = function(log) {
@@ -96,7 +102,7 @@ ruleset gossip_protocol {
         foreach event:attrs{"Messages"} setting (message)
         always {
             raise gossip event "rumor" attributes {
-                "Message": message.klog("HERE...")
+                "Message": message
             }
         }
     }
