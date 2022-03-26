@@ -49,7 +49,7 @@ ruleset gossip_protocol {
     }
 
     rule initialize {
-        select when debug initialize
+        select when debug_gossip initialize
         pre {
             schedule_id = schedule:list()[0]{"id"} || -1
             valid = schedule_id > 0
@@ -62,10 +62,20 @@ ruleset gossip_protocol {
     }
 
     rule clear_peer_data {
-        select when debug initialize
+        select when debug_gossip initialize
         foreach subs:established().filter(node_only) setting (sensor)
         always {
             ent:known_peers{sensor{"Tx"}} := []
+        }
+    }
+
+    rule add_new_peer {
+        select when gossip add_new_peer
+        pre {
+            tx = event:attrs{"Tx"}
+        }
+        always {
+            ent:known_peers{tx} := []
         }
     }
 
