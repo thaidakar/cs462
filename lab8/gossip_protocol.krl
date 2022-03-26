@@ -108,7 +108,7 @@ ruleset gossip_protocol {
         })
         fired {
             ent:peer_logs{[Peer_ID, ent:sensor_id]} := ent:sequence_num
-            ent:peer_logs{[ent:sensor_id, ent:sensor_id]} := ent:sensor_id
+            ent:peer_logs{[ent:sensor_id, ent:sensor_id]} := ent:sequence_num
             ent:sequence_num := ent:sequence_num + 1
             ent:stored_messages{ent:sensor_id} := ent:stored_messages{ent:sensor_id}.defaultsTo([]).append(Message)
         }
