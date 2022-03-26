@@ -4,6 +4,10 @@ ruleset gossip_protocol {
     }
 
     global {
+        get_scheduled_events = function() {
+            schedule:list()
+        }
+
         get_unique_message_id = function() {
             random:uuid()
         }
@@ -22,10 +26,6 @@ ruleset gossip_protocol {
 
         parse_message = function(MessageID, part) {
             MessageID.split(":")[part]
-        }
-
-        remove_any_scheduled_events = function(event) {
-            schedule:remove(event)
         }
     }
 
@@ -88,6 +88,16 @@ ruleset gossip_protocol {
         }
     }
 
+    rule reset_scheduled {
+        select when gossip reset 
+        pre {
+            id = event:attrs{"id"}
+        }
+        always {
+            x = schedule:remove(id)
+        }
+    }
+
     rule reset_gossip {
         select when gossip reset
         foreach ent:peer_connections setting (peer)
@@ -104,7 +114,6 @@ ruleset gossip_protocol {
         always {
             ent:stored_messages := {}
             ent:sequence_num := 0
-            x = remove_any_scheduled_events(scheduled_events{[0, "id"]}) if scheduled_events.length() > 0
         }
     }
 
