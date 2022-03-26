@@ -67,7 +67,7 @@ ruleset gossip_protocol {
         pre {
             messages = event:attrs{"messages"}
             sensor_ids = messages.klog("sensor_ids...")
-            Messages = get_needed_messages(sensor_ids).klog("Needed messages...")
+            Messages = sensor_ids.map(get_needed_messages).klog("Needed messages...")
             from_id = event:attrs{"from"}
             should_send = messages != null && messages.length() > 0 && messages[0] != null
         }
