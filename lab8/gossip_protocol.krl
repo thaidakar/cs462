@@ -137,9 +137,11 @@ ruleset gossip_protocol {
 
     rule catch_heartbeat {
         select when gossip heartbeat
-        send_directive("Heartbeat event received")
-
-        //TODO: Pick someone to send it to and send it to them
+        always {
+            raise gossip event "create_message" attributes {
+                "Id" : get_connections().keys()[0]
+            }
+        }
     }
 
     rule handle_heartbeat {
