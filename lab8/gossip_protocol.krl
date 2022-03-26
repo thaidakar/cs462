@@ -1,6 +1,6 @@
 ruleset gossip_protocol {
     meta {
-        shares get_peer_logs, get_seen_messages, get_connections, parse_message
+        shares get_peer_logs, get_seen_messages, get_connections
     }
 
     global {
@@ -34,10 +34,10 @@ ruleset gossip_protocol {
             sequence_num = parse_message(message_id_full, 1)
             sensor_id = Message{"SensorID"}
             next_message_in_sequence = ent:peer_logs{sensor_id}.defaultsTo(-1) + 1 == sequence_num
-            new_message = ent:stored_messages{[sensor_id, "MessageID"]} >< message_id_full
+            known_message = ent:stored_messages{[sensor_id, "MessageID"]} >< message_id_full
         }
         always {
-            ent:stored_messages{sensor_id} := ent:stored_messages{sensor_id}.defaultsTo([]).append(Message) if new_message
+            ent:stored_messages{sensor_id} := ent:stored_messages{sensor_id}.defaultsTo([]).append(Message) if not known_message
             ent:peer_logs{sensor_id} := sequence_num if next_message_in_sequence
         }
     }
