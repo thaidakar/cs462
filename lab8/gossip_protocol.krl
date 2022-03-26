@@ -28,14 +28,18 @@ ruleset gossip_protocol {
             MessageID.split(":")[part]
         }
 
+        get_difference = function (self, known_logs, received_logs) {
+            known_logs.get(self).difference(received_logs.get(self)).length() > 0
+        }
+
         find_missing_versions = function (similar_keys, known_logs, received_logs) {
-            known_logs.get(similar_keys).klog("known logs .get").difference(received_logs.get(similar_keys).klog("received logs .get"))
+            similar_keys.get_difference(known_logs, received_logs).klog("PLEASE???")
         }
 
         find_missing = function(known_logs, received_logs) {
             missing_messages = known_logs.keys().difference(received_logs.keys())
-            missing_versions = find_missing_versions(known_logs.keys().intersection(received_logs.keys()).klog("intersection of known keys and received keys"), known_logs, received_logs)
-            missing_messages.union(missing_versions)
+            any_missing_versions = find_missing_versions(known_logs.keys().intersection(received_logs.keys()).klog("intersection of known keys and received keys"), known_logs, received_logs)
+            missing_messages + any_missing_versions
         }
 
         get_sensor_id = function(log) {
