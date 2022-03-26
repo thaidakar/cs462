@@ -33,12 +33,12 @@ ruleset gossip_protocol {
             message_id = parse_message(message_id_full, 0)
             sequence_num = parse_message(message_id_full, 1)
             sensor_id = Message{"SensorID"}
-            next_message_in_sequence = (ent:peer_logs{[ent:sensor_id, sensor_id]} + 1) == sequence_num.as("Number")
+            next_message_in_sequence = (ent:peer_logs{[ent:sensor_id, sensor_id]} + 1).defaultsTo(0) == sequence_num.as("Number")
             known_message = ent:stored_messages{[sensor_id, "MessageID"]} >< message_id_full
         }
         always {
             ent:stored_messages{sensor_id} := ent:stored_messages{sensor_id}.defaultsTo([]).append(Message) if not known_message
-            ent:peer_logs{[ent:sensor_id, sensor_id]} := (ent:peer_logs{[ent:sensor_id, sensor_id]} + 1) if next_message_in_sequence
+            ent:peer_logs{[ent:sensor_id, sensor_id]} := (ent:peer_logs{[ent:sensor_id, sensor_id]} + 1).defaultsTo(0) if next_message_in_sequence
         }
     }
 
@@ -131,3 +131,11 @@ ruleset gossip_protocol {
         }
     }
 }
+
+//1
+//cl1778cic00cd1sbz9eulb8is id
+//cl177f6uq00nh1sbzbgwcbf02 tx
+
+//2
+//cl1778ada00bg1sbz2hux0l7p id
+//cl177f6uu00nj1sbz0r22dij6 tx
