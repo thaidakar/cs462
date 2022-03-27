@@ -56,7 +56,7 @@ ruleset gossip_protocol {
             raise gossip event "handle_missing" attributes {
                 "messages" : missing_messages,
                 "from" : from_id
-            } if missing_messages.length() > 0
+            } if missing_messages.length() > 0 && ent:powered
         }
     }
 
@@ -69,7 +69,7 @@ ruleset gossip_protocol {
             from_id = event:attrs{"from"}
             should_send = messages != null && messages.length() > 0 && messages[0] != null
         }
-        if should_send then event:send({
+        if should_send && ent:powered then event:send({
             "eci": get_connections(){[from_id, "Tx"]},
             "domain": "gossip", "name":"rumors",
             "attrs": {
@@ -309,3 +309,30 @@ ruleset gossip_protocol {
 //3
 //cl1778cic00cd1sbz9eulb8is id (2)
 //cl177fzsv00rf1sbz7rro90co tx
+
+//cl1778h5f00es1sbzbq9u1dqj id (4)
+//cl177grvm00uv1sbz4a8vgwe4 tx
+
+//cl1778ixg00ga1sbz5zb02etf id (5)
+//cl177h77600wf1sbz2dtg7k4q tx
+
+//4
+//cl1778e8700dh1sbzah2zgqtv id (3)
+//cl177grvi00ut1sbzh8xg4wi8
+
+//cl1778ixg00ga1sbz5zb02etf id (5)
+//cl177hsk600zu1sbzbnfr95tg tx
+
+//5
+//cl1778e8700dh1sbzah2zgqtv id (3)
+//cl177h77300wd1sbzcvh482xv tx
+
+//cl1778h5f00es1sbzbq9u1dqj id (4)
+//cl177hsk200zr1sbz5a6l53iw tx
+
+//cl18rea6q04gnwubz004s0za3 id (toAdd)
+//cl18rf4ca04kjwubz9b6i60fb tx
+
+//To add
+//cl1778ixg00ga1sbz5zb02etf id (5)
+//cl18rf4c604kgwubz0kj02qda tx
