@@ -1,11 +1,15 @@
 ruleset gossip_protocol {
     meta {
-        shares get_peer_logs, get_seen_messages, get_connections, get_scheduled_events
+        shares get_peer_logs, get_seen_messages, get_connections, get_scheduled_events, get_power_state
     }
 
     global {
         get_scheduled_events = function() {
             schedule:list()
+        }
+
+        get_power_state = function() {
+            ent:powered
         }
 
         get_peer_logs = function() {
