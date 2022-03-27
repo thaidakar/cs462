@@ -238,7 +238,7 @@ ruleset gossip_protocol {
         select when gossip power
         send_directive("Switching power " + ent:powered => "off" | "on")
         always {
-            ent:powered := not ent:powered.defaultsTo(true)
+            ent:powered := ent:powered => false | true
         }
     }
 
