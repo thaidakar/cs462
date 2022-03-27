@@ -109,9 +109,8 @@ ruleset gossip_protocol {
         select when gossip rumorx
         foreach event:attrs{"Messages"} setting (message)
         pre {
-            sensor_id = message{"SensorID"}
-            message_id = parse_message(message{"MessageID"}, 1)
-            known = message_id >< get_seen_messages(){[sensor_id, "MessageID"]}.klog("seen_messages{[sensor_id, MessageID]}")
+            sensor_id = message{"SensorID"}.klog("SensorID...")
+            known = message{"MessageID"} >< ent:stored_messages.keys([sensor_id, "MessageID"]).klog("Keys at sensor_id, MessageID")
         }
         always {
             raise gossip event "rumor" attributes {
