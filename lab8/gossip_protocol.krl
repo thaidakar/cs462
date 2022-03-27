@@ -108,10 +108,15 @@ ruleset gossip_protocol {
     rule parse_handle_rumors {
         select when gossip rumorx
         foreach event:attrs{"Messages"} setting (message)
+        pre {
+            sensor_id = message{"SensorID"}
+            message_id = parse_message(message{"MessageID"}, 1)
+            known = message_id >< get_seen_messages(){[sensor_id, "MessageID"]}.klog("seen_messages{[sensor_id, MessageID]}")
+        }
         always {
             raise gossip event "rumor" attributes {
                 "Message": message.klog("RECEIVED MESSAGE...")
-            }
+            } if not known
         }
     }
 
