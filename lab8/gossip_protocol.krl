@@ -236,6 +236,7 @@ ruleset gossip_protocol {
 
     rule toggle_power {
         select when gossip power
+        send_directive("Switching power " + ent:powered => "off" | "on")
         always {
             ent:powered := not ent:powered.defaultsTo(true)
         }
