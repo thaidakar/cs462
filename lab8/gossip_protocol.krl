@@ -31,9 +31,9 @@ ruleset gossip_protocol {
         }
 
         find_missing = function(known_logs, received_logs) {
-            missing_messages = known_logs.keys().difference(received_logs.keys())
+            missing_messages = known_logs.keys().difference(received_logs.keys()).klog("missing_messages")
             any_missing_versions = find_missing_versions(known_logs.keys().intersection(received_logs.keys()).klog("intersection of known keys and received keys"), known_logs, received_logs)
-            missing_messages + any_missing_versions
+            missing_messages.union(any_missing_versions)
         }
 
         get_sensor_id = function(log) {
