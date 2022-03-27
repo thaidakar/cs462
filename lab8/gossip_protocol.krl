@@ -25,13 +25,13 @@ ruleset gossip_protocol {
         }
 
         find_missing_versions = function (similar_keys, known_logs, received_logs) {
-            similar_keys.klog("similar keys").filter(function(self) {
-                known_logs{self}.klog("known logs values (" + self + ")").difference(received_logs{self}.klog("received logs values (" + self + ")")).klog("difference...").length() > 0
-            }).klog("please???")
+            similar_keys.filter(function(self) {
+                known_logs{self}.difference(received_logs{self}).length() > 0
+            })
         }
 
         find_missing = function(known_logs, received_logs) {
-            missing_messages = known_logs.keys().difference(received_logs.keys()).klog("missing_messages")
+            missing_messages = known_logs.keys().difference(received_logs.keys())
             any_missing_versions = find_missing_versions(known_logs.keys().intersection(received_logs.keys()), known_logs, received_logs)
             missing_messages.union(any_missing_versions)
         }
@@ -50,7 +50,7 @@ ruleset gossip_protocol {
         pre {
             received_logs = event:attrs{"logs"}
             from_id = event:attrs{"from"}
-            missing_messages = find_missing(ent:peer_logs{ent:sensor_id}.klog("Known logs..."), received_logs.klog("received logs...")).klog("Missing messages...")
+            missing_messages = find_missing(ent:peer_logs{ent:sensor_id}, received_logs)
         }
         always {
             raise gossip event "handle_missing" attributes {
@@ -64,8 +64,8 @@ ruleset gossip_protocol {
         select when gossip handle_missing 
         pre {
             messages = event:attrs{"messages"}
-            sensor_ids = messages.klog("sensor_ids...")
-            Messages = sensor_ids.map(get_needed_messages).klog("Needed messages...")
+            sensor_ids = messages
+            Messages = sensor_ids.map(get_needed_messages)
             from_id = event:attrs{"from"}
             should_send = messages != null && messages.length() > 0 && messages[0] != null
         }
@@ -83,9 +83,9 @@ ruleset gossip_protocol {
         pre {
             Peer_ID = event:attrs{"Id"}
             Peer_TX = get_connections(){[Peer_ID, "Tx"]}
-            logs_to_send = ent:peer_logs{ent:sensor_id}.klog("Sending known logs...")
+            logs_to_send = ent:peer_logs{ent:sensor_id}
         }
-        event:send({
+        if ent:powered then event:send({
             "eci": Peer_TX,
             "domain": "gossip", "name":"seen",
             "attrs": {
@@ -109,14 +109,14 @@ ruleset gossip_protocol {
         select when gossip rumorx
         foreach event:attrs{"Messages"} setting (message)
         pre {
-            sensor_id = message{"SensorID"}.klog("SensorID...")
+            sensor_id = message{"SensorID"}
             known = ent:stored_messages{sensor_id}.defaultsTo([]).any(function(entry) {
-                entry{"MessageID"}.klog("Entry{MessageID}") == message{"MessageID"}
-            }).klog("Any?")
+                entry{"MessageID"} == message{"MessageID"}
+            })
         }
         always {
             raise gossip event "rumor" attributes {
-                "Message": message.klog("RECEIVED MESSAGE...")
+                "Message": message
             } if not known
         }
     }
@@ -133,9 +133,9 @@ ruleset gossip_protocol {
             known_message = ent:stored_messages{[sensor_id, "MessageID"]} >< message_id_full && (ent:peer_logs{[sensor_id, sensor_id]}.defaultsTo(-1)) >= sequence_num.as("Number")
         }
         always {
-            ent:stored_messages{sensor_id} := ent:stored_messages{sensor_id}.defaultsTo([]).append(Message) if not known_message
-            ent:peer_logs{[sensor_id, sensor_id]} := (ent:peer_logs{[sensor_id, sensor_id]}.defaultsTo(-1) + 1) if next_message_in_sequence
-            ent:peer_logs{[ent:sensor_id, sensor_id]} := (ent:peer_logs{[ent:sensor_id, sensor_id]}.defaultsTo(-1) + 1) if next_message_in_sequence
+            ent:stored_messages{sensor_id} := ent:stored_messages{sensor_id}.defaultsTo([]).append(Message) if not known_message && ent:powered
+            ent:peer_logs{[sensor_id, sensor_id]} := (ent:peer_logs{[sensor_id, sensor_id]}.defaultsTo(-1) + 1) if next_message_in_sequence && ent:powered
+            ent:peer_logs{[ent:sensor_id, sensor_id]} := (ent:peer_logs{[ent:sensor_id, sensor_id]}.defaultsTo(-1) + 1) if next_message_in_sequence && ent:powered
         }
     }
 
@@ -144,7 +144,7 @@ ruleset gossip_protocol {
         always {
             raise gossip event "create_message" attributes {
                 "Id" : get_connections().keys()[0]
-            }
+            } if ent:powered
         }
     }
 
@@ -159,7 +159,7 @@ ruleset gossip_protocol {
             Timestamp = ent:timestamp
             Message = {}.put("MessageID", MessageID).put("SensorID", SensorID).put("Temperature", Temperature).put("Timestamp", Timestamp)
         }
-        event:send({
+        if ent:powered then event:send({
             "eci": Peer_TX,
             "domain": "gossip", "name":"rumor",
             "attrs": {
@@ -208,7 +208,7 @@ ruleset gossip_protocol {
         always {
             raise gossip event "send_seen" attributes {
                 "Id" : id
-            }
+            } if ent:powered
         }
     }
 
@@ -231,6 +231,13 @@ ruleset gossip_protocol {
         always {
             schedule gossip event "send_seen_query"
                 repeat << */#{seen_period} * * * * * >>
+        }
+    }
+
+    rule toggle_power {
+        select when gossip power
+        always {
+            ent:powered := not ent:powered.defaultsTo(true)
         }
     }
 
@@ -278,7 +285,7 @@ ruleset gossip_protocol {
         fired {
             ent:sensor_id := meta:eci
             ent:sequence_num := 0
-
+            ent:powered := true
             raise gossip event "schedule_seen"
         }
     }
