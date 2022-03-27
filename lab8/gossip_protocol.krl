@@ -110,7 +110,7 @@ ruleset gossip_protocol {
         foreach event:attrs{"Messages"} setting (message)
         pre {
             sensor_id = message{"SensorID"}.klog("SensorID...")
-            known = ent:stored_messages.any(function(entry) {
+            known = ent:stored_messages{sensor_id}.any(function(entry) {
                 entry{"MessageID"}.klog("Entry{MessageID}") == sensor_id
             }).klog("Any?")
         }
