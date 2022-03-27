@@ -1,15 +1,11 @@
 ruleset gossip_protocol {
     meta {
-        shares get_peer_logs, get_seen_messages, get_connections, get_scheduled_events, remove_scheduled_event
+        shares get_peer_logs, get_seen_messages, get_connections, get_scheduled_events
     }
 
     global {
         get_scheduled_events = function() {
             schedule:list()
-        }
-
-        remove_scheduled_event = function(id) {
-            schedule:remove(id)
         }
 
         get_peer_logs = function() {
@@ -230,6 +226,14 @@ ruleset gossip_protocol {
             schedule gossip event "send_seen_query"
                 repeat << */#{seen_period} * * * * * >>
         }
+    }
+
+    rule schedule_cleanup {
+        select when gossip schedule_cleanup
+        pre {
+            id = event:attrs{"id"}
+        }
+        schedule:remove(id)
     }
 
     rule collect_recent_temperature {
