@@ -26,7 +26,7 @@ ruleset gossip_protocol {
 
         find_missing_versions = function (similar_keys, known_logs, received_logs) {
             similar_keys.klog("similar keys").filter(function(self) {
-                known_logs.klog("known_logs").values(self).klog("known logs values " + self).difference(received_logs.klog("received logs").values(self).klog("received logs values" + self)).klog("difference...").length() > 0
+                known_logs{self}.klog("known logs values (" + self + ")").difference(received_logs{self}.klog("received logs values (" + self + ")")).klog("difference...").length() > 0
             }).klog("please???")
         }
 
