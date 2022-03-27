@@ -236,9 +236,12 @@ ruleset gossip_protocol {
 
     rule toggle_power {
         select when gossip power
-        send_directive("Switching power " + ent:powered => "off" | "on")
+        pre {
+            message = "Switching power " + ent:powered => "off" | "on";
+        }
+        send_directive(message)
         always {
-            ent:powered := ent:powered => false | true
+            ent:powered := (ent:powered => false | true).klog("Result...")
         }
     }
 
