@@ -111,7 +111,7 @@ ruleset gossip_protocol {
         pre {
             sensor_id = message{"SensorID"}.klog("SensorID...")
             known = ent:stored_messages{sensor_id}.defaultsTo([]).any(function(entry) {
-                entry{"MessageID"}.klog("Entry{MessageID}") == sensor_id
+                entry{"MessageID"}.klog("Entry{MessageID}") == message{"MessageID"}
             }).klog("Any?")
         }
         always {
