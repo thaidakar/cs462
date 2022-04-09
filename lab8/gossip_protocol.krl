@@ -324,7 +324,7 @@ ruleset gossip_protocol {
         always {
             ent:timestamp := passed_timestamp
             ent:temperature := passed_temp
-            ent:violation_id := is_in_violation => 1 | (ent:violation_id.defaultsTo(0) == 1 => -1 | 0)
+            ent:violation_id := (is_in_violation => 1 | (ent:violation_id.defaultsTo(0) == 1 => -1 | 0)).klog("violation id...")
             ent:total_in_violation := ent:total_in_violation.defaultsTo(0) + ent:violation_id
         }
     }
