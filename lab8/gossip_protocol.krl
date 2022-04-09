@@ -89,9 +89,12 @@ ruleset gossip_protocol {
         select when gossip handle_missing_counter
         pre {
             total_in_violation = event:attrs{"total_in_violation"}
+            greater = ent:total_in_violation < total_in_violation
+            less = ent:total_in_violation > total_in_violation
         }
         always {
-            ent:total_in_violation := total_in_violation
+            ent:total_in_violation := greater => (ent:total_in_violation + 1) | ent:total_in_violation
+            ent:total_in_violation := less => (ent:total_in_violation - 1) | ent:total_in_violation
         }
     }
 
@@ -333,14 +336,15 @@ ruleset gossip_protocol {
             passed_temp = event:attrs{"temperature"}
             passed_timestamp = event:attrs{"timestamp"}
             is_in_violation = passed_temp > 75
-            violation_id = (is_in_violation => 1 | (ent:violation_id.defaultsTo(0) == 1 => -1 | 0)).klog("violation id...")
+            violation_id = (is_in_violation => 1 | (ent:violation_id.defaultsTo(0).klog("violation_id was...") == 1 => -1 | 0)).klog("violation id...")
             known = ent:violation_id == violation_id
+            invalid_negative = violation_id < 0 && ent:total_in_violation.defaultsTo(0) == 0
         }
         always {
             ent:timestamp := passed_timestamp
             ent:temperature := passed_temp
             ent:violation_id := known => ent:violation_id | violation_id
-            ent:total_in_violation := known => ent:total_in_violation | ent:total_in_violation.defaultsTo(0) + ent:violation_id
+            ent:total_in_violation := known => ent:total_in_violation.defaultsTo(0) | ent:total_in_violation.defaultsTo(0) + (invalid_negative => 0 |ent:violation_id)
         }
     }
 
