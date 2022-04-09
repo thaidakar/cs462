@@ -107,11 +107,13 @@ ruleset gossip_protocol {
         foreach event:attrs{"missing_counter_value"} setting (value)
         pre {
             missing_value = value.klog("missing value...")
+            key = missing_value.keys()[0].klog("key...")
+            value = missing_value.values()[0].klog("value...")
 
             known = ent:stored_counter_ids >< missing_value
         }
         always {
-            ent:stored_counter_ids{missing_value.keys()[0]} := known => ent:stored_counter_ids{missing_value.keys()[0]}.defaultsTo(0) | missing_value.values()[0]
+            ent:stored_counter_ids{key} := known => ent:stored_counter_ids{key}.defaultsTo(0) | value
         }
     }
 
