@@ -71,15 +71,26 @@ ruleset gossip_protocol {
     rule handle_counter {
         select when gossip counter
         pre {
-            received_id = event:attrs{"violation_id"}
+            total_in_violation = event:attrs{"total_in_violation"}
             from_id = event:attrs{"from"}
-            changed = ent:violation_record{from_id}.defaultsTo(0) != received_id
-            is_not_negative = received_id > 0
-            able_to_change = changed && ent:total_in_violation == 0 => is_not_negative | true
+            should_send = ent:total_in_violation != total_in_violation
+        }
+        if should_send && ent:powered then event:send({
+            "eci": get_connections(){[from_id, "Tx"]},
+            "domain": "gossip", "name":"handle_missing_counter",
+            "attrs": {
+                "total_in_violation": ent:total_in_violation,
+            }
+        })
+    }
+
+    rule handle_missing_counter {
+        select when gossip handle_missing_counter
+        pre {
+            total_in_violation = event:attrs{"total_in_violation"}
         }
         always {
-            ent:total_in_violation := (ent:powered && able_to_change) => ent:total_in_violation + received_id | ent:total_in_violation
-            ent:violation_record{from_id} := received_id
+            ent:total_in_violation := total_in_violation
         }
     }
 
@@ -106,13 +117,12 @@ ruleset gossip_protocol {
         pre {
             Peer_ID = event:attrs{"Id"}
             Peer_TX = get_connections(){[Peer_ID, "Tx"]}
-            violation_id = ent:violation_id
         }
         if ent:powered then event:send({
             "eci": Peer_TX,
             "domain": "gossip", "name":"counter",
             "attrs": {
-                "violation_id": violation_id,
+                "total_in_violation": ent:total_in_violation,
                 "from": ent:sensor_id
             }
         })
