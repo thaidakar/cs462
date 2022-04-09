@@ -108,12 +108,12 @@ ruleset gossip_protocol {
         pre {
             missing_value = value.klog("missing value...")
             key = missing_value.keys()[0].klog("key...")
-            value = missing_value.values()[0].klog("value...")
+            value_value = missing_value.values()[0].klog("value_value...")
 
             known = ent:stored_counter_ids >< missing_value
         }
         always {
-            ent:stored_counter_ids{key} := known => ent:stored_counter_ids{key}.defaultsTo(0) | value
+            ent:stored_counter_ids{key} := known => ent:stored_counter_ids{key}.defaultsTo(0) | value_value
         }
     }
 
