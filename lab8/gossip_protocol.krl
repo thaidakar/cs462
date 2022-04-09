@@ -1,6 +1,6 @@
 ruleset gossip_protocol {
     meta {
-        shares get_peer_logs, get_seen_messages, get_connections, get_scheduled_events, get_power_state, get_total_gossip_violations, get_violation_id
+        shares get_peer_logs, get_seen_messages, get_connections, get_scheduled_events, get_power_state, get_total_gossip_violations, get_violation_id, view_violations
     }
 
     global {
@@ -14,6 +14,10 @@ ruleset gossip_protocol {
 
         get_violation_id = function() {
             ent:violation_id
+        }
+
+        view_violations = function () {
+            ent:stored_counter_ids
         }
 
         get_power_state = function() {
@@ -83,9 +87,9 @@ ruleset gossip_protocol {
             stored_counter_ids = event:attrs{"stored_counter_ids"}
             from_id = event:attrs{"from"}
 
-            not_known = get_total_from_known(ent:stored_counter_ids).klog("known from stored") != get_total_from_known(stored_counter_ids).klog("known from received")
-            missing = find_missing(ent:stored_counter_ids, stored_counter_ids)
-            missing_counter_value = not_known => {}.put(missing, ent:stored_counter_ids{missing}).klog("MISSING VALUES...") | 0
+            not_known = get_total_from_known(ent:stored_counter_ids)!= get_total_from_known(stored_counter_ids)
+            missing = find_missing(ent:stored_counter_ids, stored_counter_ids).klog("missing...")
+            missing_counter_value = {}.put(missing, ent:stored_counter_ids{missing}).klog("MISSING VALUES...")
         }
         if not_known && ent:powered then event:send({
             "eci": get_connections(){[from_id, "Tx"]},
