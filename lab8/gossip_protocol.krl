@@ -73,9 +73,10 @@ ruleset gossip_protocol {
         pre {
             received_counter = event:attrs{"violation_id"}
             from_id = event:attrs{"from"}
+            changed = ent:violation_record{from_id}.defaultsTo(0) != received_counter
         }
         always {
-            ent:total_in_violation := ent:total_in_violation + received_counter
+            ent:total_in_violation := ent:powered && changed => ent:total_in_violation + received_counter | ent:total_in_violation
         }
     }
 
