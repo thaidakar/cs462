@@ -1,6 +1,6 @@
 ruleset gossip_protocol {
     meta {
-        shares get_peer_logs, get_seen_messages, get_connections, get_scheduled_events, get_power_state, get_total_gossip_violations
+        shares get_peer_logs, get_seen_messages, get_connections, get_scheduled_events, get_power_state, get_total_gossip_violations, get_violation_id
     }
 
     global {
@@ -9,7 +9,11 @@ ruleset gossip_protocol {
         }
 
         get_total_gossip_violations = function() {
-            ent:total_in_violation
+            get_total_from_known(ent:stored_counter_ids)
+        }
+
+        get_violation_id = function() {
+            ent:violation_id
         }
 
         get_power_state = function() {
@@ -26,6 +30,10 @@ ruleset gossip_protocol {
 
         get_connections = function() {
             ent:peer_connections
+        }
+
+        get_total_from_known = function(known) {
+            known.values().reduce(function(accumulator, curr) {accumulator.klog("accumulator...") + curr.klog("curr...")}).klog("total...");
         }
 
         parse_message = function(MessageID, part) {
@@ -72,30 +80,32 @@ ruleset gossip_protocol {
         select when gossip counter
         pre {
             total_in_violation = event:attrs{"total_in_violation"}
+            stored_counter_ids = event:attrs{"stored_counter_ids"}
             from_id = event:attrs{"from"}
-            received_is_not_zero = total_in_violation != 0
-            should_send = ent:total_in_violation != total_in_violation && (ent:violation_id > 0 => received_is_not_zero | true)
+
+            not_known = get_total_from_known(ent:stored_counter_ids).klog("known from stored") != get_total_from_known(stored_counter_ids).klog("known from received")
+            missing_counter_value = not_known => find_missing(ent:stored_counter_ids, stored_counter_ids).klog("MISSING VALUES...") | null
         }
-        if should_send && ent:powered then event:send({
+        if not_known && ent:powered then event:send({
             "eci": get_connections(){[from_id, "Tx"]},
             "domain": "gossip", "name":"handle_missing_counter",
             "attrs": {
-                "total_in_violation": ent:total_in_violation,
+                "missing_counter_value": missing_counter_value,
+                "from": meta:eci,
+                "current_id": ent:violation_id
             }
         })
     }
 
     rule handle_missing_counter {
         select when gossip handle_missing_counter
+        foreach event:attrs{"missing_counter_value"} setting (value)
         pre {
-            total_in_violation = event:attrs{"total_in_violation"}
-            greater = ent:total_in_violation < total_in_violation
-            less = ent:total_in_violation > total_in_violation
-            can_less_be_right = ent:violation_id <= 0
+            missing_value = value.klog("missing value...")
+            known = ent:stored_counter_ids >< missing_value
         }
         always {
-            ent:total_in_violation := greater => (ent:total_in_violation + 1) | ent:total_in_violation
-            ent:total_in_violation := less && can_less_be_right => (ent:total_in_violation - 1) | ent:total_in_violation
+            ent:stored_counter_ids{missing_value.keys()[0]} := known => ent:stored_counter_ids{missing_value.keys()[0]}.defaultsTo(0) | missing_value.values()[0]
         }
     }
 
@@ -128,6 +138,7 @@ ruleset gossip_protocol {
             "domain": "gossip", "name":"counter",
             "attrs": {
                 "total_in_violation": ent:total_in_violation,
+                "stored_counter_ids": ent:stored_counter_ids,
                 "from": ent:sensor_id
             }
         })
@@ -256,6 +267,7 @@ ruleset gossip_protocol {
             ent:sequence_num := 0
             ent:total_in_violation := 0
             ent:violation_id := 0
+            ent:stored_counter_ids := {}
         }
     }
 
