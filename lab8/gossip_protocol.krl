@@ -9,7 +9,7 @@ ruleset gossip_protocol {
         }
 
         get_total_gossip_violations = function() {
-            get_total_from_known(ent:stored_counter_ids.values())
+            ent:total_in_violation
         }
 
         get_violation_id = function() {
@@ -112,6 +112,7 @@ ruleset gossip_protocol {
         }
         always {
             ent:stored_counter_ids{key} := value_value
+            ent:total_in_violation := ent:total_in_violation + value_value
         }
     }
 
