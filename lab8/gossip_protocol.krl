@@ -71,13 +71,15 @@ ruleset gossip_protocol {
     rule handle_counter {
         select when gossip counter
         pre {
-            received_counter = event:attrs{"violation_id"}
+            received_id = event:attrs{"violation_id"}
             from_id = event:attrs{"from"}
-            changed = ent:violation_record{from_id}.defaultsTo(0) != received_counter
+            changed = ent:violation_record{from_id}.defaultsTo(0) != received_id
+            is_not_negative = received_id > 0
+            able_to_change = changed && ent:total_in_violation == 0 => is_not_negative | true
         }
         always {
-            ent:total_in_violation := ent:powered && changed => ent:total_in_violation + received_counter | ent:total_in_violation
-            ent:violation_record{from_id} := received_counter
+            ent:total_in_violation := (ent:powered && able_to_change) => ent:total_in_violation + received_id | ent:total_in_violation
+            ent:violation_record{from_id} := received_id
         }
     }
 
