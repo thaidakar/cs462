@@ -91,7 +91,7 @@ ruleset gossip_protocol {
             missing = find_missing(ent:stored_counter_ids, stored_counter_ids).klog("missing...")
             missing_counter_value = {}.put(missing, ent:stored_counter_ids{missing}).klog("MISSING VALUES...")
         }
-        if not_known && ent:stored_counter_ids >< missing && ent:powered then event:send({
+        if not_known && ent:powered then event:send({
             "eci": get_connections(){[from_id, "Tx"]},
             "domain": "gossip", "name":"handle_missing_counter",
             "attrs": {
