@@ -9,7 +9,7 @@ ruleset gossip_protocol {
         }
 
         get_total_gossip_violations = function() {
-            ent:total_in_violation
+            get_total_from_known(ent:stored_counter_ids.values())
         }
 
         get_violation_id = function() {
@@ -355,7 +355,7 @@ ruleset gossip_protocol {
             passed_temp = event:attrs{"temperature"}
             passed_timestamp = event:attrs{"timestamp"}
             is_in_violation = passed_temp > 75
-            violation_id = (is_in_violation => 1 | (ent:violation_id.defaultsTo(0).klog("violation_id was...") == 1 => -1 | 0)).klog("violation id...")
+            violation_id = (is_in_violation => 1 | (ent:violation_id.defaultsTo(0).klog("violation_id was...") == 1 => 0 | 0)).klog("violation id...")
             known = ent:violation_id.defaultsTo(0) == violation_id
             invalid_negative = violation_id < 0 && ent:total_in_violation.defaultsTo(0) == 0
         }
