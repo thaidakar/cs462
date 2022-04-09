@@ -1,11 +1,15 @@
 ruleset gossip_protocol {
     meta {
-        shares get_peer_logs, get_seen_messages, get_connections, get_scheduled_events, get_power_state
+        shares get_peer_logs, get_seen_messages, get_connections, get_scheduled_events, get_power_state, get_total_gossip_violations
     }
 
     global {
         get_scheduled_events = function() {
             schedule:list()
+        }
+
+        get_total_gossip_violations = function() {
+            ent:total_in_violation
         }
 
         get_power_state = function() {
@@ -64,6 +68,17 @@ ruleset gossip_protocol {
         }
     }
 
+    rule handle_counter {
+        select when gossip counter
+        pre {
+            received_counter = event:attrs{"violation_id"}
+            from_id = event:attrs{"from"}
+        }
+        always {
+            ent:total_in_violation := ent:total_in_violation + received_counter
+        }
+    }
+
     rule handle_missing {
         select when gossip handle_missing 
         pre {
@@ -78,6 +93,23 @@ ruleset gossip_protocol {
             "domain": "gossip", "name":"rumors",
             "attrs": {
                 "Messages": Messages,
+            }
+        })
+    }
+
+    rule send_counter {
+        select when gossip send_counter
+        pre {
+            Peer_ID = event:attrs{"Id"}
+            Peer_TX = get_connections(){[Peer_ID, "Tx"]}
+            violation_id = ent:violation_id
+        }
+        if ent:powered then event:send({
+            "eci": Peer_TX,
+            "domain": "gossip", "name":"counter",
+            "attrs": {
+                "violation_id": violation_id,
+                "from": ent:sensor_id
             }
         })
     }
@@ -203,6 +235,8 @@ ruleset gossip_protocol {
             ent:peer_logs := {}
             ent:stored_messages := {}
             ent:sequence_num := 0
+            ent:total_in_violation := 0
+            ent:violation_id := 0
         }
     }
 
@@ -211,6 +245,16 @@ ruleset gossip_protocol {
         foreach get_connections().keys() setting (id)
         always {
             raise gossip event "send_seen" attributes {
+                "Id" : id
+            } if ent:powered
+        }
+    }
+
+    rule send_counter_query {
+        select when gossip send_counter_query
+        foreach get_connections().keys() setting (id)
+        always {
+            raise gossip event "send_counter" attributes {
                 "Id" : id
             } if ent:powered
         }
@@ -234,6 +278,17 @@ ruleset gossip_protocol {
         }
         always {
             schedule gossip event "send_seen_query"
+                repeat << */#{seen_period} * * * * * >>
+        }
+    }
+
+    rule schedule_counter_collection {
+        select when gossip schedule_seen
+        pre {
+            seen_period = event:attrs{"period"} || 30
+        }
+        always {
+            schedule gossip event "send_counter_query"
                 repeat << */#{seen_period} * * * * * >>
         }
     }
@@ -262,10 +317,13 @@ ruleset gossip_protocol {
         pre {
             passed_temp = event:attrs{"temperature"}
             passed_timestamp = event:attrs{"timestamp"}
+            is_in_violation = passed_temp > 75
         }
         always {
             ent:timestamp := passed_timestamp
             ent:temperature := passed_temp
+            ent:violation_id := is_in_violation => 1 | (ent:violation_id.defaultsTo(0) == 1 => -1 | 0)
+            ent:total_in_violation := ent:total_in_violation.defaultsTo(0) + ent:violation_id
         }
     }
 
