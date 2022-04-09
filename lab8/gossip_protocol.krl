@@ -73,7 +73,8 @@ ruleset gossip_protocol {
         pre {
             total_in_violation = event:attrs{"total_in_violation"}
             from_id = event:attrs{"from"}
-            should_send = ent:total_in_violation != total_in_violation
+            received_is_not_zero = total_in_violation != 0
+            should_send = ent:total_in_violation != total_in_violation && (ent:violation_id > 0 => received_is_not_zero | true)
         }
         if should_send && ent:powered then event:send({
             "eci": get_connections(){[from_id, "Tx"]},
