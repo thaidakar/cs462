@@ -37,7 +37,7 @@ ruleset gossip_protocol {
         }
 
         get_total_from_known = function(known) {
-            known.values().reduce(function(accumulator, curr) {accumulator.klog("accumulator...") + curr.defaultsTo(0).klog("curr...")}).klog("total...");
+            known.values().reduce(function(accumulator, curr) {accumulator.defaultsTo(0).klog("accumulator...") + curr.defaultsTo(0).klog("curr...")}).klog("total...");
         }
 
         parse_message = function(MessageID, part) {
