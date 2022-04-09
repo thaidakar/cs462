@@ -9,7 +9,7 @@ ruleset gossip_protocol {
         }
 
         get_total_gossip_violations = function() {
-            get_total_from_known(ent:stored_counter_ids)
+            get_total_from_known(ent:stored_counter_ids.values())
         }
 
         get_violation_id = function() {
@@ -87,7 +87,7 @@ ruleset gossip_protocol {
             stored_counter_ids = event:attrs{"stored_counter_ids"}
             from_id = event:attrs{"from"}
 
-            not_known = get_total_from_known(ent:stored_counter_ids)!= get_total_from_known(stored_counter_ids)
+            not_known = get_total_from_known(ent:stored_counter_ids.values()) != get_total_from_known(stored_counter_ids.values())
             missing = find_missing(ent:stored_counter_ids, stored_counter_ids).klog("missing...")
             missing_counter_value = {}.put(missing, ent:stored_counter_ids{missing}).klog("MISSING VALUES...")
         }
