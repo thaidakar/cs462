@@ -77,6 +77,7 @@ ruleset gossip_protocol {
         }
         always {
             ent:total_in_violation := ent:powered && changed => ent:total_in_violation + received_counter | ent:total_in_violation
+            ent:violation_record{from_id} := received_counter
         }
     }
 
