@@ -84,7 +84,7 @@ ruleset gossip_protocol {
             from_id = event:attrs{"from"}
 
             not_known = get_total_from_known(ent:stored_counter_ids).klog("known from stored") != get_total_from_known(stored_counter_ids).klog("known from received")
-            missing_counter_value = not_known => find_missing(ent:stored_counter_ids, stored_counter_ids).klog("MISSING VALUES...") | null
+            missing_counter_value = not_known => ent:stored_counter_ids{find_missing(ent:stored_counter_ids, stored_counter_ids)}.klog("MISSING VALUES...") | 0
         }
         if not_known && ent:powered then event:send({
             "eci": get_connections(){[from_id, "Tx"]},
