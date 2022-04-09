@@ -358,6 +358,7 @@ ruleset gossip_protocol {
             ent:temperature := passed_temp
             ent:violation_id := known => ent:violation_id | violation_id
             ent:total_in_violation := known => ent:total_in_violation.defaultsTo(0) | ent:total_in_violation.defaultsTo(0) + (invalid_negative => 0 | ent:violation_id)
+            ent:stored_counter_ids{meta:eci} := ent:violation_id
         }
     }
 
