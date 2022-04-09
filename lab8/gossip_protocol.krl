@@ -104,9 +104,8 @@ ruleset gossip_protocol {
 
     rule handle_missing_counter {
         select when gossip handle_missing_counter
-        foreach event:attrs{"missing_counter_value"} setting (value)
         pre {
-            missing_value = value.klog("missing value...")
+            missing_value = event:attrs{"missing_counter_value"}.klog("missing value...")
             key = missing_value.keys()[0].klog("key...")
             value_value = missing_value.values()[0].klog("value_value...")
         }
