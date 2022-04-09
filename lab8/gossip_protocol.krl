@@ -108,9 +108,10 @@ ruleset gossip_protocol {
             missing_value = event:attrs{"missing_counter_value"}.klog("missing value...")
             key = missing_value.keys()[0].klog("key...")
             value_value = missing_value.values()[0].klog("value_value...")
+            is_valid_rumor = key == meta:eci => ent:stored_counter_ids{meta:eci}.defaultsTo(0) == value_value | true
         }
         always {
-            ent:stored_counter_ids{key} := value_value
+            ent:stored_counter_ids{key} := is_valid_rumor => value_value | ent:stored_counter_ids{key}.defaultsTo(0)
             ent:total_in_violation := ent:total_in_violation + value_value
         }
     }
