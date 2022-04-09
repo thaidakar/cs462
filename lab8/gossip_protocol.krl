@@ -33,7 +33,7 @@ ruleset gossip_protocol {
         }
 
         get_total_from_known = function(known) {
-            known.values().reduce(function(accumulator, curr) {accumulator.klog("accumulator...") + curr.klog("curr...")}).klog("total...");
+            known.values().reduce(function(accumulator, curr) {accumulator.klog("accumulator...") + curr.defaultsTo(0).klog("curr...")}).klog("total...");
         }
 
         parse_message = function(MessageID, part) {
@@ -350,13 +350,13 @@ ruleset gossip_protocol {
             passed_timestamp = event:attrs{"timestamp"}
             is_in_violation = passed_temp > 75
             violation_id = (is_in_violation => 1 | (ent:violation_id.defaultsTo(0).klog("violation_id was...") == 1 => -1 | 0)).klog("violation id...")
-            known = ent:violation_id == violation_id
+            known = ent:violation_id.defaultsTo(0) == violation_id
             invalid_negative = violation_id < 0 && ent:total_in_violation.defaultsTo(0) == 0
         }
         always {
             ent:timestamp := passed_timestamp
             ent:temperature := passed_temp
-            ent:violation_id := known => ent:violation_id | violation_id
+            ent:violation_id := known => ent:violation_id.defaultsTo(0) | violation_id
             ent:total_in_violation := known => ent:total_in_violation.defaultsTo(0) | ent:total_in_violation.defaultsTo(0) + (invalid_negative => 0 | ent:violation_id)
             ent:stored_counter_ids{meta:eci} := ent:violation_id
         }
