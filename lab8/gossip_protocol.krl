@@ -91,10 +91,11 @@ ruleset gossip_protocol {
             total_in_violation = event:attrs{"total_in_violation"}
             greater = ent:total_in_violation < total_in_violation
             less = ent:total_in_violation > total_in_violation
+            can_less_be_right = ent:violation_id <= 0
         }
         always {
             ent:total_in_violation := greater => (ent:total_in_violation + 1) | ent:total_in_violation
-            ent:total_in_violation := less => (ent:total_in_violation - 1) | ent:total_in_violation
+            ent:total_in_violation := less && can_less_be_right => (ent:total_in_violation - 1) | ent:total_in_violation
         }
     }
 
@@ -344,7 +345,7 @@ ruleset gossip_protocol {
             ent:timestamp := passed_timestamp
             ent:temperature := passed_temp
             ent:violation_id := known => ent:violation_id | violation_id
-            ent:total_in_violation := known => ent:total_in_violation.defaultsTo(0) | ent:total_in_violation.defaultsTo(0) + (invalid_negative => 0 |ent:violation_id)
+            ent:total_in_violation := known => ent:total_in_violation.defaultsTo(0) | ent:total_in_violation.defaultsTo(0) + (invalid_negative => 0 | ent:violation_id)
         }
     }
 
